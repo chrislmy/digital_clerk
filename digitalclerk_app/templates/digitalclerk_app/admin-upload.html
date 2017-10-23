@@ -1,0 +1,11 @@
+{% extends "digitalclerk_app/skeleton.html" %}
+
+{% block main %}
+	<form action="" method="POST" enctype="multipart/form-data">
+	<div class="form-group">
+	    {% csrf_token %}
+	    	{{ form }}
+	    <input style="display: block;" class="btn btn-primary" type="submit" value="Submit" />
+	    </div>
+	</form>
+{% endblock %}
