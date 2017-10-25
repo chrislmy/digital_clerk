@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from .forms import AdminUploadFileForm
 
 import xlrd
+import json
 
 # Create your views here.
 def dashboard(request):
@@ -45,5 +46,26 @@ def parse_input_file(inputFile):
 	}
 	return excel_data
 
-def skeleton(request):
-	return render(request, 'digitalclerk_app/skeleton.html', {})
+def office(request):
+	office_hours = [{
+					'id': '1',
+					'title': 'All Day Office Hour',
+					'start': '2017-10-25',
+				},
+				{
+					'id': '2',
+					'title': 'Office Hour',
+					'start': '2017-10-17T16:00:00'
+				},
+				{
+					'id': '3',
+					'title': 'Office Hour Extra',
+					'start': '2017-10-12T10:30:00',
+					'end': '2017-10-12T12:30:00'
+				}]
+	office_hours_json = json.dumps(office_hours)
+	print(type(office_hours_json))
+	data = {
+		'office_hours':office_hours_json
+	}
+	return render(request, 'digitalclerk_app/office.html',data)

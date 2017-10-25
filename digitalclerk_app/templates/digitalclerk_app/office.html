@@ -1,0 +1,45 @@
+{% extends "digitalclerk_app/skeleton.html" %}
+
+{% block main %}
+	<h1>This is the office page</h1>
+	<div style="width: 800px;" id='officeHourCalendar'></div>
+	<div id="officeHourCalendarModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            	<h4 id="modalTitle" class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only"></span></button>
+            </div>
+            <div id="modalBody" class="modal-body">Example Description</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button class="btn btn-primary"><a id="eventUrl" target="_blank">Delete Event</a></button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block optional_js %}
+	<script type="text/javascript">
+		$(document).ready(function() {
+			// var obj = JSON.parse({{ office_hours|safe }});
+			console.log({{office_hours|safe}});
+
+		    $('#officeHourCalendar').fullCalendar({
+		        header: {
+		            left: 'prev,next today',
+		            center: 'title',
+		            right: 'month,agendaWeek,agendaDay'
+		        },
+		        defaultView: 'month',
+		        events:{{office_hours|safe}},
+		        eventClick: function(event, jsEvent, view) {
+            		$('#modalTitle').html(event.title);
+            		$('#officeHourCalendarModal').modal();
+        		}
+		    })
+
+		});
+	</script>
+{% endblock %}
