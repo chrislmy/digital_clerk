@@ -1,14 +1,40 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
+from django.conf import settings
+from django.core import serializers
 
-
-from .forms import AdminUploadFileForm
+from .forms import AdminUploadFileForm, AddOfficeHourForm
+from .helper_classes import MockUserProfile, MockModules
+from .models import OfficeHours
 
 import xlrd
 import json
+import os
 
-# Create your views here.
 def dashboard(request):
+	mock_module = MockModules()
+	modules_arr = mock_module.listModules
+	data = {
+		'modules': modules_arr
+	}
+	return render(request, 'digitalclerk_app/dashboard.html', data)
+
+def module_details(request, module_code):
+	user_profile = MockUserProfile()
+	user_upi = user_profile.studentProfile()['upi']
+	form = AddOfficeHourForm()
+	office_hours = OfficeHours.objects.filter(custom_profile_fk=user_upi,module_code=module_code)
+	office_hours_dict_array = office_hours_to_dict(office_hours)
+	office_hours_json = json.dumps(office_hours_dict_array)
+	data = {
+		'user_upi': user_upi,
+		'module_code': module_code,
+		'form': form,
+		'office_hours': office_hours_json
+	}
+	return render(request, 'digitalclerk_app/module_detail.html',data)
+
+def admin_index(request):
 	if request.method == 'POST':
 		form = AdminUploadFileForm(request.POST, request.FILES)
 		if form.is_valid():
@@ -46,26 +72,43 @@ def parse_input_file(inputFile):
 	}
 	return excel_data
 
-def office(request):
-	office_hours = [{
-					'id': '1',
-					'title': 'All Day Office Hour',
-					'start': '2017-10-25',
-				},
-				{
-					'id': '2',
-					'title': 'Office Hour',
-					'start': '2017-10-17T16:00:00'
-				},
-				{
-					'id': '3',
-					'title': 'Office Hour Extra',
-					'start': '2017-10-12T10:30:00',
-					'end': '2017-10-12T12:30:00'
-				}]
-	office_hours_json = json.dumps(office_hours)
-	print(type(office_hours_json))
-	data = {
-		'office_hours':office_hours_json
-	}
-	return render(request, 'digitalclerk_app/office.html',data)
+def add_office_hour(request):
+	title = request.POST.get('office_hour_title')
+	start_time = request.POST.get('start_time')
+	end_time = request.POST.get('end_time')
+	location = request.POST.get('location')
+	date = request.POST.get('current-date')
+	user_upi = request.POST.get('user-upi')
+	module_code = request.POST.get('module-code')
+	office_hour = OfficeHours(custom_profile_fk=user_upi, start_time=start_time, end_time=end_time, start_date=date, location=location, title=title, module_code=module_code)
+	office_hour.save()
+	return HttpResponseRedirect('dashboard/module_details/'+module_code)
+
+def edit_office_hour(request):
+	office_hour_id = request.POST.get('office-hour-id')
+	module_code = request.POST.get('module-code')
+	title = request.POST.get('office_hour_title')
+	start_time = request.POST.get('start_time')
+	end_time = request.POST.get('end_time')
+	location = request.POST.get('location')
+	office_hour = OfficeHours.objects.get(pk=office_hour_id)
+	office_hour.title = title
+	office_hour.start_time = start_time
+	office_hour.end_time = end_time
+	office_hour.location = location
+	office_hour.save()
+	return HttpResponseRedirect('dashboard/module_details/'+module_code)
+
+def office_hours_to_dict(office_hours_query_set):
+	office_hours_dict_array = []
+	for office_hour in office_hours_query_set:
+		office_hour_json = {
+			'id': office_hour.id,
+			'title': office_hour.title,
+			'date': str(office_hour.start_date),
+			'start': (str(office_hour.start_date) + "T" + office_hour.start_time),
+			'end': (str(office_hour.start_date) + "T" + office_hour.end_time),
+			'location': office_hour.location
+		}
+		office_hours_dict_array.append(office_hour_json)
+	return office_hours_dict_array

@@ -1,0 +1,128 @@
+{% extends "digitalclerk_app/skeleton.html" %}
+
+{% block title %} {{ module_code }} {% endblock %}
+
+{% block main %}
+	<h2>This is {{ module_code }}</h2>
+	<div style="width: 800px;" id='officeHourCalendar'></div>
+
+	<!-- Office hour detail modal -->
+	<div id="officeHourCalendarModal" class="modal fade">
+	    <div class="modal-dialog">
+	        <div class="modal-content">
+	            <div class="modal-header">
+	            	<h4 id="officeHourDetailTitle" class="modal-title"></h4>
+	                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only"></span></button>
+	            </div>
+	            <div class="modal-body">
+	            	<h4>Location</h4>
+	            	<div id="officeHourDetailLocation"></div>
+	            	<h4>Time</h4>
+	            	<div id="officeHourDetailTime"></div>
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	                <button class="btn btn-primary"><a id="eventUrl" target="_blank">Delete Event</a></button>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+
+	<!-- Add office hour modal -->
+	<div id="addOfficeHourModal" class="modal fade">
+	    <div class="modal-dialog">
+	        <div class="modal-content">
+	            <div class="modal-header">
+	            	<h4 id="addOfficeHourTitle" class="modal-title"></h4>
+	                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only"></span></button>
+	            </div>
+	            <div id="modalBody" class="modal-body">
+	            	<form id="officeHourForm" action="{% url 'digitalclerk_app:add_office_hour' %}" method="POST">
+						{% csrf_token %}
+						<div class="form-group">
+					    	<label for="{{ form.office_hour_title.id_for_label }}">Title:</label>
+					    	{{ form.office_hour_title }}
+					    </div>
+						<div class="form-group">
+					    	<label for="{{ form.start_time.id_for_label }}">Start Time:</label>
+					    	{{ form.start_time }}
+					    </div>
+					    <div class="form-group">
+					    	<label for="{{ form.end_time.id_for_label }}">End Time:</label>
+					    	{{ form.end_time }}
+					    </div>
+					    <div class="form-group">
+					    	<label for="{{ form.location.id_for_label }}">Location:</label>
+					    	{{ form.location }}
+					    </div>
+					    <span id="hiddenFields"></span>
+					    <input id="modalSubmitText" style="display: block;" class="btn btn-primary" type="submit" value="Submit" />
+					</form>
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	            </div>
+
+	        </div>
+	    </div>
+	</div>
+{% endblock %}
+
+{% block optional_js %}
+	<script type="text/javascript">
+		$(document).ready(function() {
+			var date = new Date();
+			var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+
+			function isoToTimeString(isoDate){
+				var dateStr = String(isoDate)
+				var dateArray = dateStr.split(' ');
+				return dateArray[4].substring(0,5);
+			};
+
+			function setModalFieldValues(modalType, header, title, startTime, endTime, location, submitText){
+				$('#addOfficeHourTitle').html(modalType + ' Office Hour (' + header + ')');
+				$('#modalSubmitText').val(submitText);
+    			$('#id_office_hour_title').val(title);
+        		$('#id_start_time').val(startTime);
+        		$('#id_end_time').val(endTime);
+        		$('#id_location').val(location);
+			};
+
+			$('input').addClass("form-control");
+			$('select').addClass("form-control");
+
+		    $('#officeHourCalendar').fullCalendar({
+		        header: {
+		            left: '',
+		            center: 'prev title next',
+		            right: ''
+		        },
+		        defaultView: 'month',
+		        events:{{office_hours|safe}},
+		        validRange:{
+		        	start:firstDay
+        		},
+		        eventClick: function(event, jsEvent, view) {
+		        	setModalFieldValues('Edit', event.date, event.title, isoToTimeString(event.start), isoToTimeString(event.end), event.location, 'Submit')
+		        	$('#hiddenFields').html('<input type="hidden" name="module-code" value="{{module_code}}">'
+		        							+ '<input type="hidden" name="office-hour-id" value="'+ event.id +'">'
+		        						);
+		        	$('#officeHourForm').attr("action", "{% url 'digitalclerk_app:edit_office_hour' %}");
+            		$('#addOfficeHourModal').modal();
+        		},
+        		dayClick: function(date, jsEvent, view) {
+        			var eventDate = date.format();
+        			setModalFieldValues('Add', eventDate, '', '09:00', '09:30', '', 'Add Office Hour')
+        			$('#hiddenFields').html('<input type="hidden" name="current-date" value="' + eventDate + '">'
+		        							+ '<input type="hidden" name="user-upi" value="{{user_upi}}">'
+		        							+ '<input type="hidden" name="module-code" value="{{module_code}}">'
+		        						);	
+        			$('#officeHourForm').attr("action", "{% url 'digitalclerk_app:add_office_hour' %}");
+        			$('#addOfficeHourModal').modal();
+			    }
+		    })
+
+		});
+	</script>
+{% endblock %}
