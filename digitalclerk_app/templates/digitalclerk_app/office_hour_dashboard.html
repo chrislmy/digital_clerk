@@ -15,7 +15,7 @@
 				<div class="collapse" id="interaction{{i.interaction.id}}">
 					<div class="card-body">
 						<p><strong>{{i.owner}} is working on: </strong> {{i.request.request_title}}</p><hr>
-						<p><strong>{{i.owner}}'s' problem is: </strong> {{i.request.request_description}}</p><hr>
+						<p><strong>{{i.owner}}'s problem is: </strong> {{i.request.request_description}}</p><hr>
 						<p><strong>{{i.owner}} has tried: </strong> {{i.request.tried_solutions}}</p><hr>
 						<a href="{% url 'digitalclerk_app:close_interaction' office_hour_id lecturer_id i.request.id i.interaction.id 1 %}" class="btn btn-danger">Resolve Interaction</a>
 					</div>

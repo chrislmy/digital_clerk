@@ -101,7 +101,7 @@ def delete_office_hour(request):
 # Office hour dashboard for monitoring REQUESTS and INTERACTIONS
 def office_hour_dashboard_student(request):
 	user_profile = MockUserProfile()
-	user_upi = user_profile.studentProfile2()['upi']
+	user_upi = user_profile.studentProfile1()['upi']
 	office_hour_id = int(request.GET.get('office-hour-id'))
 	lecturer_id = int(request.GET.get('lecturer'))
 	request_form = AddRequestForm()
@@ -110,7 +110,7 @@ def office_hour_dashboard_student(request):
 	raised_request = 0
 	opened_interaction = 0
 	try:
-		my_request = Request.objects.get(request_user=user_upi, office_hour_id=office_hour_id, status=1)
+		my_request = Request.objects.get(request_user=user_upi, office_hour_id=office_hour_id, status__in=[1,2])
 		try:
 			interaction = Interaction.objects.get(request_id=my_request.id)
 		except Interaction.DoesNotExist:
