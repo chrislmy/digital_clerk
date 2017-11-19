@@ -1,0 +1,78 @@
+{% extends "digitalclerk_app/skeleton.html" %}
+
+{% block title %} Office Hour Dashboard {% endblock %}
+
+{% block main %}
+	{% if user_status != 'Student' %}
+		<h2>This is {{ lecturer }}'s office hour</h2>
+		<h4 style="margin-top: 1.5rem">Open Interactions</h4><hr>
+		{% if open_interactions %}
+		{% for i in open_interactions %}
+			<div class="card" style="margin-top: 1rem">
+				<div class="card-header" data-toggle="collapse" href="#interaction{{i.interaction.id}}">
+					<span style="float: left">{{i.owner}}</span><span style="float: right">Interaction opened at {{i.interaction.time_opened}}</span>
+				</div>
+				<div class="collapse" id="interaction{{i.interaction.id}}">
+					<div class="card-body">
+						<p><strong>{{i.owner}} is working on: </strong> {{i.request.request_title}}</p><hr>
+						<p><strong>{{i.owner}}'s' problem is: </strong> {{i.request.request_description}}</p><hr>
+						<p><strong>{{i.owner}} has tried: </strong> {{i.request.tried_solutions}}</p><hr>
+						<a href="{% url 'digitalclerk_app:close_interaction' office_hour_id lecturer_id i.request.id i.interaction.id 1 %}" class="btn btn-danger">Resolve Interaction</a>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+		{% else %}
+			<p><strong>There are no open interactions.</strong></p>
+		{% endif %}
+		<h4 style="margin-top: 1.5rem">Request Raised</h4><hr>
+		{% if open_requests %}
+		{% for r in open_requests %}
+			<div class="card" style="margin-top: 1rem">
+				<div class="card-header" data-toggle="collapse" href="#request{{r.request.id}}">
+					<span style="float: left">{{r.owner}}</span><span style="float: right">Request Raised at {{r.request.time_raised}}</span>
+				</div>
+				<div class="collapse" id="request{{r.request.id}}">
+					<div class="card-body">
+						<p><strong>I am working on: </strong> {{r.request.request_title}}</p><hr>
+						<p><strong>My problem is: </strong> {{r.request.request_description}}</p><hr>
+						<p><strong>I have tried: </strong> {{r.request.tried_solutions}}</p><hr>
+						<a href="{% url 'digitalclerk_app:open_interaction' office_hour_id lecturer_id r.request.id 0 %}" class="btn btn-primary">Open Interaction</a>
+						<a href="{% url 'digitalclerk_app:open_interaction' office_hour_id lecturer_id r.request.id 2 %}" class="btn btn-danger">Cancel Request</a>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+		{% else %}
+			<p><strong>There are no open requests.</strong></p>
+		{% endif %}
+		<h4 style="margin-top: 1.5rem">Addressed Requests</h4><hr>
+		{% if closed_requests %}
+			{% for r in closed_requests %}
+				<div class="card" style="margin-top: 1rem">
+					<div class="card-header" data-toggle="collapse" href="#request{{r.request.id}}">
+						<span style="float: left">{{r.owner}}</span><span style="float: right">Interaction closed at {{r.interaction.time_closed}} <strong>{{r.status}}</strong></span>
+					</div>
+					<div class="collapse" id="request{{r.request.id}}">
+						<div class="card-body">
+							<p><strong>I am working on: </strong> {{r.request.request_title}}</p><hr>
+							<p><strong>My problem is: </strong> {{r.request.request_description}}</p><hr>
+							<p><strong>I have tried: </strong> {{r.request.tried_solutions}}</p><hr>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		{% else %}
+			<p><strong>You have not address any requests.</strong></p>
+		{% endif %}
+	{% endif %}
+{% endblock %}
+
+{% block optional_js %}
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('input').addClass("form-control");
+			$('textarea').addClass("form-control");
+		});
+	</script>
+{% endblock %}

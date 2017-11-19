@@ -27,3 +27,8 @@ class AddOfficeHourForm(forms.Form):
 	end_time = forms.ChoiceField(choices=TIMES)
 	location = forms.CharField()
 	office_hour_title = forms.CharField(initial="")
+
+class AddRequestForm(forms.Form):
+	request_title = forms.CharField(max_length=150)
+	request_description = forms.CharField(widget=forms.Textarea(attrs = {"rows":5, "cols":80}))
+	tried_solutions = forms.CharField(widget=forms.Textarea(attrs = {"rows":5, "cols":80}))

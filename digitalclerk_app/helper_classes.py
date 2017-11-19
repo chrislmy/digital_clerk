@@ -1,28 +1,36 @@
 class MockUserProfile:
-	@staticmethod
-	def studentProfile():
+	def studentProfile1(self):
 		return {
 			'upi':'1',
-			'first_name':'Christopher',
-			'last_name':'Lau',
 			'status':'Student'
 		}
 
-	def lecturerProfile():
+	def studentProfile2(self):
+		return {
+			'upi':'4',
+			'status':'Student'
+		}
+
+	def lecturerProfile(self):
 		return {
 			'upi':'2',
-			'first_name':'Tony',
-			'last_name':'Hunter',
 			'status':'Lecturer'
 		}
 
-	def assistantProfile():
+	def assistantProfile(self):
 		return {
 			'upi':'3',
-			'first_name':'Mike',
-			'last_name':'Smith',
 			'status':'Assistant'
 		}
+	def getNameFromId(self,id):
+		if id == 1:
+			return 'Christopher Lau'
+		elif id == 2:
+			return 'Tony Hunter'
+		elif id == 3:
+			return 'Mike Smith'
+		elif id == 4:
+			return 'LiLy Collins'
 
 class MockModules:
 	@staticmethod

@@ -1,33 +1,24 @@
 {% extends "digitalclerk_app/skeleton.html" %}
 
-{% block title %} {{ module_code }} {% endblock %}
+{% block title %} Digital Clerk - {{ module_code }} {% endblock %}
 
 {% block main %}
 	<h2>This is {{ module_code }}</h2>
+	<!-- Form to filter lecturer/assistant names -->
+	<form id="officeHourFilterForm" action="{% url 'digitalclerk_app:module_details' module_code %}" method="POST">
+		{% csrf_token %}
+		<div class="form-group">
+      		<label for="inputLecturerFilter">Filter Office Hours by Lecturer/Assistant</label>
+      		<select id="inputLecturerFilter" name="lecturer" class="form-control">
+      			<option value="all">Show All</option>
+      			{% for lecturer in lecturers %}
+        			<option value="{{ lecturer.id }}">{{ lecturer.name }}</option>
+   				{% endfor %}
+      		</select>
+      		<input style="width: 15%; margin-top: 1rem;" class="btn btn-primary" type="submit" value="Search" />
+    	</div>
+	</form>
 	<div style="width: 800px;" id='officeHourCalendar'></div>
-
-	<!-- Office hour detail modal -->
-	<div id="officeHourCalendarModal" class="modal fade">
-	    <div class="modal-dialog">
-	        <div class="modal-content">
-	            <div class="modal-header">
-	            	<h4 id="officeHourDetailTitle" class="modal-title"></h4>
-	                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only"></span></button>
-	            </div>
-	            <div class="modal-body">
-	            	<h4>Location</h4>
-	            	<div id="officeHourDetailLocation"></div>
-	            	<h4>Time</h4>
-	            	<div id="officeHourDetailTime"></div>
-	            </div>
-	            <div class="modal-footer">
-	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	                <button class="btn btn-primary"><a id="eventUrl" target="_blank">Delete Event</a></button>
-	            </div>
-	        </div>
-	    </div>
-	</div>
-
 	<!-- Add office hour modal -->
 	<div id="addOfficeHourModal" class="modal fade">
 	    <div class="modal-dialog">
@@ -39,6 +30,10 @@
 	            <div id="modalBody" class="modal-body">
 	            	<form id="officeHourForm" action="{% url 'digitalclerk_app:add_office_hour' %}" method="POST">
 						{% csrf_token %}
+						<div id="officeHourOrganiserSection" class="form-group">
+					    	<label for="">Organiser:</label>
+					    	<span style="font-weight: bold;" id="officeHourOrganiser"></span>
+					    </div>
 						<div class="form-group">
 					    	<label for="{{ form.office_hour_title.id_for_label }}">Title:</label>
 					    	{{ form.office_hour_title }}
@@ -56,13 +51,11 @@
 					    	{{ form.location }}
 					    </div>
 					    <span id="hiddenFields"></span>
-					    <input id="modalSubmitText" style="display: block;" class="btn btn-primary" type="submit" value="Submit" />
+					    <a style="color: white; width: 32%;" id="goOfficeHour" class="btn btn-info" href="">Go to Office Hour</a>
+				    	<input style="color: white; width: 32%;" id="deleteOfficeHour" class="btn btn-primary" type="submit" value="Delete" />
+				    	<input style="color: white; width: 32%;" id="editOfficeHour" class="btn btn-primary" type="submit" value="Submit" />
 					</form>
 	            </div>
-	            <div class="modal-footer">
-	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	            </div>
-
 	        </div>
 	    </div>
 	</div>
@@ -80,9 +73,9 @@
 				return dateArray[4].substring(0,5);
 			};
 
-			function setModalFieldValues(modalType, header, title, startTime, endTime, location, submitText){
+			function initModal(modalType, header, title, startTime, endTime, location, submitText){
 				$('#addOfficeHourTitle').html(modalType + ' Office Hour (' + header + ')');
-				$('#modalSubmitText').val(submitText);
+				$('#editOfficeHour').val(submitText);
     			$('#id_office_hour_title').val(title);
         		$('#id_start_time').val(startTime);
         		$('#id_end_time').val(endTime);
@@ -104,22 +97,53 @@
 		        	start:firstDay
         		},
 		        eventClick: function(event, jsEvent, view) {
-		        	setModalFieldValues('Edit', event.date, event.title, isoToTimeString(event.start), isoToTimeString(event.end), event.location, 'Submit')
+		        	initModal('', event.date, event.title, isoToTimeString(event.start), isoToTimeString(event.end), event.location, 'Edit')
 		        	$('#hiddenFields').html('<input type="hidden" name="module-code" value="{{module_code}}">'
 		        							+ '<input type="hidden" name="office-hour-id" value="'+ event.id +'">'
 		        						);
+		        	$('#officeHourOrganiser').html(event.lecturer);
 		        	$('#officeHourForm').attr("action", "{% url 'digitalclerk_app:edit_office_hour' %}");
+		        	$('#goOfficeHour').attr("href", "{% url 'digitalclerk_app:office_hour_dashboard_student' %}?office-hour-id=" + event.id + "&lecturer=" + event.lecturer_id);
+
+		        	if('{{user_status}}' !== 'Student'){
+		        		$('#goOfficeHour').attr("href", "{% url 'digitalclerk_app:office_hour_dashboard' %}?office-hour-id=" + event.id + "&lecturer=" + event.lecturer_id);
+		        	}
+
+		        	if('{{user_status}}' === 'Student' || '{{user_upi}}' != event.lecturer_id){
+		        		$('#deleteOfficeHour, #editOfficeHour').hide();
+		        		$('#officeHourForm > .form-group > input').prop("disabled", true);
+		        		$('#officeHourForm > .form-group > select').prop("disabled", true);
+		        	}
+		        	else{
+		        		$('#deleteOfficeHour, #editOfficeHour').show();
+		        		$('#officeHourForm > .form-group > input').prop("disabled", false);
+		        		$('#officeHourForm > .form-group > select').prop("disabled", false);
+		        		$('#goOfficeHour').attr("href", "{% url 'digitalclerk_app:office_hour_dashboard' %}?office-hour-id=" + event.id + "&lecturer=" + event.lecturer_id);
+		        	}
+
+		        	$('#deleteOfficeHour').click(function () {
+        				$('#officeHourForm').attr("action", "{% url 'digitalclerk_app:delete_office_hour' %}");
+    				});
+
+		        	$('#goOfficeHour, #officeHourOrganiserSection').show();
             		$('#addOfficeHourModal').modal();
         		},
         		dayClick: function(date, jsEvent, view) {
         			var eventDate = date.format();
-        			setModalFieldValues('Add', eventDate, '', '09:00', '09:30', '', 'Add Office Hour')
+        			initModal('Add', eventDate, '', '09:00', '09:30', '', 'Add Office Hour')
         			$('#hiddenFields').html('<input type="hidden" name="current-date" value="' + eventDate + '">'
 		        							+ '<input type="hidden" name="user-upi" value="{{user_upi}}">'
 		        							+ '<input type="hidden" name="module-code" value="{{module_code}}">'
-		        						);	
+		        						);
         			$('#officeHourForm').attr("action", "{% url 'digitalclerk_app:add_office_hour' %}");
-        			$('#addOfficeHourModal').modal();
+        			$('#deleteOfficeHour, #goOfficeHour, #officeHourOrganiserSection').hide();
+        			$('#editOfficeHour').show();
+
+        			if('{{user_status}}' !== 'Student'){
+        				$('#addOfficeHourModal').modal();
+        				$('#officeHourForm > .form-group > input').prop("disabled", false);
+		        		$('#officeHourForm > .form-group > select').prop("disabled", false);
+        			}
 			    }
 		    })
 
