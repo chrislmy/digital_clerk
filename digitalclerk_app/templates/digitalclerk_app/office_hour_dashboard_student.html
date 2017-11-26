@@ -3,62 +3,149 @@
 {% block title %} Office Hour Dashboard {% endblock %}
 
 {% block main %}
-	<h2>This is {{ lecturer }}'s office hour</h2>	
-	<div class="card">
-		<div class="card-header">Raise a request</div>
+	<span class="navigation-box">
+		<a href="{% url 'digitalclerk_app:dashboard' %}">Dashboard</a> / 
+		<a href="{% url 'digitalclerk_app:module_details' office_hour.module_code %}">{{ office_hour.module_code }}</a> / 
+		{{office_hour.title}}
+	</span>
+	<h4 class="primary-header2" style="margin-top: 1rem;">Office hour details</h2><hr class="seperator">
+	<div class="card" id="officeHourDetailCard" style="margin-top: 1rem; width: 50%;">
+		<div class="card-header card-header-pending font-size-lg"><strong>{{office_hour.title}} ({{office_hour.start_date}})</strong></div>
 		<div class="card-body">
-			<h4 class="card-title">Your request will be placed in a queue and a peer teacher will be ready to see you soon.</h4>
-			<form id="addRequestForm" action="{% url 'digitalclerk_app:add_request' office_hour_id user_upi lecturer_id %}" method="POST">
-				{% csrf_token %}
-				<div class="form-group">
-		      		<label for="{{ request_form.request_title.id_for_label }}">I am working on:</label>
-		      		{{ request_form.request_title }}
-		    	</div>
-		    	<div class="form-group">
-		      		<label for="{{ request_form.request_description.id_for_label }}">My problem is:</label>
-		      		{{ request_form.request_description }}
-		    	</div>
-		    	<div class="form-group">
-		      		<label for="{{ request_form.tried_solutions.id_for_label }}">I have tried:</label>
-		      		{{ request_form.tried_solutions }}
-		    	</div>
-		    	{% if raised_request == 1 %}
-		    		<p style="border: 1px solid red; padding: 0.5rem; color: red;"><strong>You can only raise one request at a time</strong></p>
-		    	{% else %}
-		    		<input style="color: white; width: 33%;" id="submitRequest" class="btn btn-primary" type="submit" value="Submit Request" />
-		    	{% endif %}
-			</form>
+			<p class="font-size-md">Organiser: <strong>{{lecturer}}</strong></p><hr>
+			<p class="font-size-md">Duration: <strong>{{office_hour.start_time}} - {{office_hour.end_time}}</strong></p><hr>
+			<p class="font-size-md">Module: <strong>{{office_hour.module_code}}</strong></p><hr>
+			<p class="font-size-md">Location: <strong>{{office_hour.location}}</strong></p><hr style="margin-bottom: 0;">			
 		</div>
 	</div>
-	<div class="card" style="margin-top: 1.5rem">
-		<div class="card-header">Your request</div>
-		<div class="card-body">
-			{% if not my_request %}
-				<p>You have yet to raise a request</p>
-			{% elif my_request %}
-				{% if prior_request_count == 0 %}
-					{% if opened_interaction == 1 %}
-						<p style="color: blue;"><strong>Your peer teacher has opened an interaction! Please see him now</strong></p>
-					{% else %}
-						<p style="color: blue;"><strong>There are no requests ahead of you. A peer teacher should be seeing you very soon!</strong></p>
-					{% endif %}
-				{% else %}
-					{% if opened_interaction == 1 %}
-						<p style="color: blue;"><strong>Your peer teacher has opened an interaction! Please see him now</strong></p>
-					{% else %}
-						<p style="color: red;"><strong>There are {{prior_request_count}} requests raised before you. Please wait...</strong></p>
-					{% endif %}
-				{% endif %}
-        		<p><strong>You are working on</strong>: {{my_request.request_title}}</p>
-				<p><strong>Your Problem is</strong>: {{my_request.request_description}}</p>
-				<p><strong>You tried</strong>: {{my_request.tried_solutions}}</p>
-				{% if opened_interaction == 0 %}
-					<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editRequestModal">Edit Request</button>
-	   				<a href="{% url 'digitalclerk_app:close_request' office_hour_id lecturer_id my_request.id %}" class="btn btn-danger">Close Request</a>
-	   			{% endif %}
-	   		{% endif %}
+	<h4 class="primary-header2" style="margin-top: 1rem;">Raise a Help Request</h2><hr class="seperator">
+	{% if office_hour_is_over == 1 %}
+		<h5 class="warning-box">This is office hour has passed. Please find another available office hour</h4>
+	{% else %}
+		<div class="row" style="margin-top: 1rem">
+			<div class="col-6 col-md-6" >
+				<div class="card">
+					<div class="card-header card-collapse card-header-open font-size-lg" data-toggle="collapse" href="#raiseRequestBox">
+						<strong>Raise a request</strong>
+					</div>
+					<div class="collapse" id="raiseRequestBox">
+						<div class="card-body">	
+							<h4 class="card-title primary-header3">Your request will be placed in a queue and a peer teacher will be ready to see you soon.</h4>
+							<form id="addRequestForm" action="{% url 'digitalclerk_app:add_request' office_hour_id user_upi lecturer_id %}" method="POST">
+								{% csrf_token %}
+								<div class="form-group">
+						      		<label for="{{ request_form.request_title.id_for_label }}">I am working on:</label>
+						      		{{ request_form.request_title }}
+						    	</div>
+						    	<div class="form-group">
+						      		<label for="{{ request_form.request_description.id_for_label }}">My problem is:</label>
+						      		{{ request_form.request_description }}
+						    	</div>
+						    	<div class="form-group">
+						      		<label for="{{ request_form.tried_solutions.id_for_label }}">I have tried:</label>
+						      		{{ request_form.tried_solutions }}
+						    	</div>
+						    	{% if raised_request == 1 %}
+						    		<p style="border: 1px solid red; padding: 0.5rem; color: red;"><strong>You can only raise one request at a time</strong></p>
+						    	{% else %}
+						    		<input style="color: white; width: 33%;" id="submitRequest" class="btn btn-primary" type="submit" value="Submit Request" />
+						    	{% endif %}
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-6 col-md-6">
+				<div class="card">
+					<div class="card-header card-collapse card-header-open font-size-lg" data-toggle="collapse" href="#yourRequestBox">
+						<strong>Your request</strong>
+					</div>
+					<div class="collapse" id="yourRequestBox">
+						<div class="card-body">
+							{% if not my_request %}
+								<p class="font-size-lg">You have yet to raise a request</p>
+							{% elif my_request %}
+								{% if prior_request_count == 0 %}
+									{% if opened_interaction == 1 %}
+										<p style="color: blue;"><strong>Your peer teacher has opened an interaction! Please see him now</strong></p>
+									{% else %}
+										<p style="color: blue;"><strong>There are no requests ahead of you. A peer teacher should be seeing you very soon!</strong></p>
+									{% endif %}
+								{% else %}
+									{% if opened_interaction == 1 %}
+										<p style="color: blue;"><strong>Your peer teacher has opened an interaction! Please see him now</strong></p>
+									{% else %}
+										<p style="color: red;"><strong>There are {{prior_request_count}} requests raised before you. Please wait...</strong></p>
+									{% endif %}
+								{% endif %}
+				        		<p><strong>You are working on</strong>: {{my_request.request_title}}</p>
+								<p><strong>Your Problem is</strong>: {{my_request.request_description}}</p>
+								<p><strong>You tried</strong>: {{my_request.tried_solutions}}</p>
+								{% if opened_interaction == 0 %}
+									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editRequestModal">Edit Request</button>
+					   				<a href="{% url 'digitalclerk_app:close_request' office_hour_id lecturer_id my_request.id %}" class="btn btn-danger">Close Request</a>
+					   			{% endif %}
+					   		{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-	</div>
+	{% endif %}
+	<h4 class="primary-header2" style="margin-top: 1.5rem">Previous requests for this office hour</h4><hr class="seperator">
+	{% if past_requests %}
+		{% for r in past_requests %}
+			<div class="card" style="margin-top: 1rem">
+				<div class="card-header card-header-addressed card-collapse" data-toggle="collapse" href="#request{{r.request.id}}">
+					<span style="float: left">Request Raised at {{r.request.time_raised}}</span>
+					<span style="float: right">Status: 
+						{% if r.status == 'Abandoned' %}
+							<span style="color: #e03e16;"><strong>{{r.status}}</strong></span>
+						{% else %}
+							<span style="color: #1aaf13;"><strong>{{r.status}}</strong></span>
+						{% endif %}
+					</span>
+				</div>
+				<div class="collapse" id="request{{r.request.id}}">
+					<div class="card-body">
+						<p class="font-size-md"><strong>I am working on: </strong> {{r.request.request_title}}</p><hr>
+						<p class="font-size-md"><strong>My problem is: </strong> {{r.request.request_description}}</p><hr>
+						<p class="font-size-md"><strong>I have tried: </strong> {{r.request.tried_solutions}}</p><hr>
+						{% if r.feedback %}
+							<a href="" data-toggle="modal" data-target="#feedbackModal{{r.request.id}}">You have feedback from {{r.feedback_owner}}! Click to see feedback.</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+			<!-- Feedback modal -->
+			<div id="feedbackModal{{r.request.id}}" class="modal fade">
+			    <div class="modal-dialog">
+			        <div class="modal-content">
+			            <div class="modal-header">
+			            	<h4 id="addOfficeHourTitle" class="primary-header2 modal-title">Your Feedback Report</h4>
+			                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only"></span></button>
+			            </div>
+			            <div id="modalBody" class="modal-body">
+			            	<h4 class="primary-header3">{{r.feedback_owner}} thinks your next steps should be to</h4>
+			            	{% if r.feedback.next_steps == '' %}
+			            		<p class="font-size-md">None</p>
+			            	{% else %}
+			            		<p class="font-size-md">{{r.feedback.next_steps}}</p>
+			            	{% endif %}
+			            	<h4 class="primary-header3">Additional comments from {{r.feedback_owner}}</h4>
+			            	{% if r.feedback.foot_note == '' %}
+			            		<p class="font-size-md">None</p>
+			            	{% else %}
+			            		<p class="font-size-md">{{r.feedback.foot_note}}</p>
+			            	{% endif %}
+			            </div>
+			        </div>
+			    </div>
+			</div>
+		{% endfor %}
+	{% else %}
+		<p class="font-size-lg">You have no previous requests</p>
+	{% endif %}
 
 	<!-- Edit Request Modal -->
 	{% if my_request %}

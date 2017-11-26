@@ -32,3 +32,7 @@ class AddRequestForm(forms.Form):
 	request_title = forms.CharField(max_length=150)
 	request_description = forms.CharField(widget=forms.Textarea(attrs = {"rows":5, "cols":80}))
 	tried_solutions = forms.CharField(widget=forms.Textarea(attrs = {"rows":5, "cols":80}))
+
+class FeedbackForm(forms.Form):
+	next_steps = forms.CharField(required=False, widget=forms.Textarea(attrs = {"rows":5, "cols":80}))
+	foot_note = forms.CharField(required=False, widget=forms.Textarea(attrs = {"rows":5, "cols":80}))

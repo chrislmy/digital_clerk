@@ -3,35 +3,38 @@
 {% block title %} Digital Clerk - {{ module_code }} {% endblock %}
 
 {% block main %}
-	<h2>This is {{ module_code }}</h2>
+	<span class="navigation-box"><a href="{% url 'digitalclerk_app:dashboard' %}">Dashboard</a> / {{ module_code }}</span>
+	<h2 class="primary-header1" style="margin-top: 1rem;">This is {{ module_code }}</h2>
 	<!-- Form to filter lecturer/assistant names -->
 	<form id="officeHourFilterForm" action="{% url 'digitalclerk_app:module_details' module_code %}" method="POST">
 		{% csrf_token %}
 		<div class="form-group">
       		<label for="inputLecturerFilter">Filter Office Hours by Lecturer/Assistant</label>
       		<select id="inputLecturerFilter" name="lecturer" class="form-control">
+      			<option value=""></option>
       			<option value="all">Show All</option>
       			{% for lecturer in lecturers %}
         			<option value="{{ lecturer.id }}">{{ lecturer.name }}</option>
    				{% endfor %}
       		</select>
-      		<input style="width: 15%; margin-top: 1rem;" class="btn btn-primary" type="submit" value="Search" />
     	</div>
 	</form>
-	<div style="width: 800px;" id='officeHourCalendar'></div>
+	<h4 class="primary-header2">Available office hours</h4><hr class="seperator">
+	<div id='officeHourCalendar' style="margin-top: 1rem;"></div>
+
 	<!-- Add office hour modal -->
 	<div id="addOfficeHourModal" class="modal fade">
 	    <div class="modal-dialog">
 	        <div class="modal-content">
 	            <div class="modal-header">
-	            	<h4 id="addOfficeHourTitle" class="modal-title"></h4>
+	            	<h4 id="addOfficeHourTitle" class="primary-header2 modal-title"></h4>
 	                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only"></span></button>
 	            </div>
 	            <div id="modalBody" class="modal-body">
 	            	<form id="officeHourForm" action="{% url 'digitalclerk_app:add_office_hour' %}" method="POST">
 						{% csrf_token %}
 						<div id="officeHourOrganiserSection" class="form-group">
-					    	<label for="">Organiser:</label>
+					    	<label class="primary-header3" for="">Organiser:</label>
 					    	<span style="font-weight: bold;" id="officeHourOrganiser"></span>
 					    </div>
 						<div class="form-group">
@@ -51,8 +54,8 @@
 					    	{{ form.location }}
 					    </div>
 					    <span id="hiddenFields"></span>
-					    <a style="color: white; width: 32%;" id="goOfficeHour" class="btn btn-info" href="">Go to Office Hour</a>
-				    	<input style="color: white; width: 32%;" id="deleteOfficeHour" class="btn btn-primary" type="submit" value="Delete" />
+					    <a style="color: white; width: 32%;" id="goOfficeHour" class="btn btn-success" href="">Go to Office Hour</a>
+				    	<input style="color: white; width: 32%;" id="deleteOfficeHour" class="btn btn-danger" type="submit" value="Delete" />
 				    	<input style="color: white; width: 32%;" id="editOfficeHour" class="btn btn-primary" type="submit" value="Submit" />
 					</form>
 	            </div>
@@ -72,6 +75,12 @@
 				var dateArray = dateStr.split(' ');
 				return dateArray[4].substring(0,5);
 			};
+
+			$(function() {
+			    $('#inputLecturerFilter').change(function() {
+			        this.form.submit();
+			    });
+			});
 
 			function initModal(modalType, header, title, startTime, endTime, location, submitText){
 				$('#addOfficeHourTitle').html(modalType + ' Office Hour (' + header + ')');

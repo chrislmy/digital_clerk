@@ -35,5 +35,11 @@ class Interaction(models.Model):
 	lecturer = models.IntegerField()
 	time_opened = models.DateTimeField()
 	time_closed = models.DateTimeField(null=True, blank=True)
-	duration_minutes = models.IntegerField(default=0)
+	duration_seconds = models.IntegerField(default=0)
 	status = models.IntegerField(choices=INTERACTION_STATUS, default=0)
+
+class Feedback(models.Model):
+	request = models.ForeignKey(Request, on_delete=models.CASCADE)
+	lecturer = models.IntegerField()
+	next_steps = models.CharField(max_length=300, null=True, blank=True)
+	foot_note = models.CharField(max_length=300, null=True, blank=True)

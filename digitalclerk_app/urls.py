@@ -15,7 +15,6 @@ urlpatterns = [
     url(r'^add_request/(?P<office_hour_id>[0-9]+)/(?P<user_id>[0-9]+)/(?P<lecturer_id>[0-9]+)$', views.add_request, name='add_request'),
     url(r'^edit_request/(?P<office_hour_id>[0-9]+)/(?P<lecturer_id>[0-9]+)/(?P<help_request_id>[0-9]+)$', views.edit_request, name='edit_request'),
     url(r'^close_request/(?P<office_hour_id>[0-9]+)/(?P<lecturer_id>[0-9]+)/(?P<help_request_id>[0-9]+)$', views.close_request, name='close_request'),
-    url(r'^close_interaction/(?P<office_hour_id>[0-9]+)/(?P<lecturer_id>[0-9]+)/(?P<help_request_id>[0-9]+)/(?P<interaction_id>[0-9]+)/(?P<status>[0-2])$', views.close_interaction, name='close_interaction'),
-    url(r'^open_interaction/(?P<office_hour_id>[0-9]+)/(?P<lecturer_id>[0-9]+)/(?P<help_request_id>[0-9]+)/(?P<status>[0-2])$', views.open_interaction, name='open_interaction')
-
+    url(r'^close_interaction/(?P<office_hour_id>[0-9]+)/(?P<lecturer_id>[0-9]+)/(?P<help_request_id>[0-9]+)/(?P<interaction_id>[0-9]+)/(?P<status>[0-2])/(?P<has_feedback>[0|1])$', views.close_interaction, name='close_interaction'),
+    url(r'^open_interaction/(?P<office_hour_id>[0-9]+)/(?P<lecturer_id>[0-9]+)/(?P<help_request_id>[0-9]+)/(?P<status>[0-2])/(?P<has_feedback>[0|1])$', views.open_interaction, name='open_interaction')
 ]

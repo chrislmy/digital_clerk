@@ -3,10 +3,10 @@
 {% block title %} Dashboard {% endblock %}
 
 {% block main %}
-	<h2>Your enrolled modules</h2>
+	<h2 class="primary-header1" >Your enrolled modules</h2><hr>
 	{% for module in modules %}
-		<h3><a href="{% url 'digitalclerk_app:module_details' module.code %}">{{ module.code }}</a></h3>
-		<p>{{ module.name }}</p>
+		<h3 class="primary-header2"><a href="{% url 'digitalclerk_app:module_details' module.code %}">{{ module.code }}</a></h3>
+		<p class="font-size-lg">{{ module.name }}</p>
 		<hr>
 	{% endfor %}
 {% endblock %}

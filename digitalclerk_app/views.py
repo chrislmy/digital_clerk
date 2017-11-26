@@ -4,9 +4,9 @@ from django.conf import settings
 from django.core import serializers
 from django.utils import timezone
 
-from .forms import AdminUploadFileForm, AddOfficeHourForm, AddRequestForm
+from .forms import AdminUploadFileForm, AddOfficeHourForm, AddRequestForm, FeedbackForm
 from .helper_classes import MockUserProfile, MockModules
-from .models import OfficeHours, Request, Interaction
+from .models import OfficeHours, Request, Interaction, Feedback
 from .utils import *
 
 import xlrd
@@ -38,7 +38,7 @@ def dashboard(request):
 # Module detail page with CALENDARS and OFFICE HOURS
 def module_details(request, module_code):
 	user_profile = MockUserProfile()
-	user_upi = user_profile.studentProfile1()['upi']
+	user_upi = user_profile.lecturerProfile()['upi']
 	form = AddOfficeHourForm()
 	office_hours = []
 	if request.POST.get('lecturer'):
@@ -54,7 +54,7 @@ def module_details(request, module_code):
 	lecturer_list = get_lecturers_for_module(module_code)
 	data = {
 		'user_upi': user_upi,
-		'user_status': user_profile.studentProfile1()['status'],
+		'user_status': user_profile.lecturerProfile()['status'],
 		'module_code': module_code,
 		'form': form,
 		'lecturers': lecturer_list,
@@ -101,12 +101,13 @@ def delete_office_hour(request):
 # Office hour dashboard for monitoring REQUESTS and INTERACTIONS
 def office_hour_dashboard_student(request):
 	user_profile = MockUserProfile()
-	user_upi = user_profile.studentProfile1()['upi']
+	user_upi = user_profile.studentProfile2()['upi']
 	office_hour_id = int(request.GET.get('office-hour-id'))
+	office_hour = OfficeHours.objects.get(pk=office_hour_id)
 	lecturer_id = int(request.GET.get('lecturer'))
-	request_form = AddRequestForm()
 	my_request = None
 	prior_request_count = 0
+	past_requests = format_requests(Request.objects.filter(office_hour_id=office_hour_id, request_user=user_upi, status=0).order_by('-time_raised'))
 	raised_request = 0
 	opened_interaction = 0
 	try:
@@ -116,7 +117,7 @@ def office_hour_dashboard_student(request):
 		except Interaction.DoesNotExist:
 			interaction = None
 		if my_request:
-			prior_request_count = get_prior_requests_count(my_request.id)
+			prior_request_count = get_prior_requests_count(office_hour_id, my_request.id)
 			raised_request = 1
 		if interaction:
 			opened_interaction = 1
@@ -126,12 +127,15 @@ def office_hour_dashboard_student(request):
 		'user_upi': user_upi,
 		'office_hour_id': office_hour_id,
 		'lecturer_id': lecturer_id,
+		'office_hour': office_hour,
 		'lecturer': user_profile.getNameFromId(lecturer_id),
-		'request_form': request_form,
+		'request_form': AddRequestForm(),
 		'my_request': my_request,
 		'raised_request': raised_request,
 		'opened_interaction': opened_interaction,
-		'prior_request_count': prior_request_count
+		'prior_request_count': prior_request_count,
+		'office_hour_is_over': office_hours_is_over(office_hour_id),
+		'past_requests': past_requests
 	}
 	return render(request, 'digitalclerk_app/office_hour_dashboard_student.html', data)
 
@@ -139,6 +143,7 @@ def office_hour_dashboard(request):
 	user_profile = MockUserProfile()
 	user_upi = user_profile.lecturerProfile()['upi']
 	office_hour_id = int(request.GET.get('office-hour-id'))
+	office_hour = OfficeHours.objects.get(pk=office_hour_id)
 	lecturer_id = int(request.GET.get('lecturer'))
 	open_requests = format_requests(Request.objects.filter(office_hour_id=office_hour_id, status=1).order_by('time_raised'))
 	closed_requests = format_interactions(Interaction.objects.filter(office_hour_id=office_hour_id, status__in=[1,2]).order_by('-time_closed'))
@@ -151,7 +156,9 @@ def office_hour_dashboard(request):
 		'lecturer': user_profile.getNameFromId(lecturer_id),
 		'open_requests': open_requests,
 		'closed_requests': closed_requests,
-		'open_interactions': open_interactions
+		'open_interactions': open_interactions,
+		'office_hour': office_hour,
+		'form': FeedbackForm()
 	}
 	return render(request, 'digitalclerk_app/office_hour_dashboard.html', data)
 
@@ -186,7 +193,7 @@ def close_request(request, office_hour_id, lecturer_id, help_request_id):
 	return HttpResponseRedirect('/office_hour_dashboard_student?office-hour-id='+ office_hour_id + '&lecturer=' + lecturer_id)
 
 # INTERACTION operations
-def open_interaction(request, office_hour_id, lecturer_id, help_request_id, status):
+def open_interaction(request, office_hour_id, lecturer_id, help_request_id, status, has_feedback):
 	help_request = Request.objects.get(pk=help_request_id)
 	help_request.status = 2
 	help_request.save()
@@ -197,21 +204,30 @@ def open_interaction(request, office_hour_id, lecturer_id, help_request_id, stat
 		office_hour_id=office_hour_id,
 		request_id=help_request_id
 	)
-	print("Status -----------" + status)
 	if (status == '2'):
-		print("Status is 2")
+		if(has_feedback == '1'):
+			next_steps = request.POST.get('next_steps')
+			foot_note = request.POST.get('foot_note')
+			feedback = Feedback(lecturer=lecturer_id, next_steps=next_steps, foot_note=foot_note, request_id=help_request_id)
+			feedback.save()
 		help_request.status = 0
 		interaction.time_closed = timezone.now()
 		help_request.save()
 	interaction.save()
 	return HttpResponseRedirect('/office_hour_dashboard?office-hour-id='+ office_hour_id + '&lecturer=' + lecturer_id)
 
-def close_interaction(request, office_hour_id, lecturer_id, help_request_id, interaction_id, status):
+def close_interaction(request, office_hour_id, lecturer_id, help_request_id, interaction_id, status, has_feedback):
+	if(has_feedback == '1'):
+		next_steps = request.POST.get('next_steps')
+		foot_note = request.POST.get('foot_note')
+		feedback = Feedback(lecturer=lecturer_id, next_steps=next_steps, foot_note=foot_note, request_id=help_request_id)
+		feedback.save()
 	help_request = Request.objects.get(pk=help_request_id)
 	help_request.status = 0
 	help_request.save()
 	interaction = Interaction.objects.get(pk=interaction_id)
 	interaction.time_closed = timezone.now()
+	interaction.duration_seconds = get_time_difference_seconds(interaction.time_opened, interaction.time_closed)
 	interaction.status = status
 	interaction.save()
 	return HttpResponseRedirect('/office_hour_dashboard?office-hour-id='+ office_hour_id + '&lecturer=' + lecturer_id)
