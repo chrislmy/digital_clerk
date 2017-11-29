@@ -32,6 +32,12 @@ class MockUserProfile:
 		elif id == 4:
 			return 'LiLy Collins'
 
+	def getEmailFromId(self,id):
+		if id == 1:
+			return 'zcabmyl@ucl.ac.uk'
+		elif id == 4:
+			return 'lmy6088@gmail.com'
+
 class MockModules:
 	@staticmethod
 	def listModules():

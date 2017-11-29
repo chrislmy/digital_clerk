@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 from django.core import serializers
+from django.core.mail import send_mail
 from django.utils import timezone
 
 from .forms import AdminUploadFileForm, AddOfficeHourForm, AddRequestForm, FeedbackForm
@@ -101,7 +102,7 @@ def delete_office_hour(request):
 # Office hour dashboard for monitoring REQUESTS and INTERACTIONS
 def office_hour_dashboard_student(request):
 	user_profile = MockUserProfile()
-	user_upi = user_profile.studentProfile2()['upi']
+	user_upi = user_profile.studentProfile1()['upi']
 	office_hour_id = int(request.GET.get('office-hour-id'))
 	office_hour = OfficeHours.objects.get(pk=office_hour_id)
 	lecturer_id = int(request.GET.get('lecturer'))
@@ -195,6 +196,14 @@ def close_request(request, office_hour_id, lecturer_id, help_request_id):
 # INTERACTION operations
 def open_interaction(request, office_hour_id, lecturer_id, help_request_id, status, has_feedback):
 	help_request = Request.objects.get(pk=help_request_id)
+	office_hour = OfficeHours.objects.get(pk=office_hour_id)
+	user_profile = MockUserProfile()
+	lecturer_name = user_profile.getNameFromId(int(lecturer_id))
+	user_name = user_profile.getNameFromId(help_request.request_user)
+	user_email = user_profile.getEmailFromId(help_request.request_user)
+	subject = "Digital Clerk - Interaction Opened!"
+	message = 'Hello ' + user_name + ',\n\n' + lecturer_name + ' has opened an interaction for one of your requests in the office hour "' + office_hour.title + '".\n' + 'The office hour is from ' + office_hour.start_time + ' to ' + office_hour.end_time
+	send_mail(subject, message, settings.EMAIL_HOST_USER, [user_email], fail_silently=False)
 	help_request.status = 2
 	help_request.save()
 	interaction = Interaction(lecturer=lecturer_id,
@@ -231,4 +240,3 @@ def close_interaction(request, office_hour_id, lecturer_id, help_request_id, int
 	interaction.status = status
 	interaction.save()
 	return HttpResponseRedirect('/office_hour_dashboard?office-hour-id='+ office_hour_id + '&lecturer=' + lecturer_id)
-
