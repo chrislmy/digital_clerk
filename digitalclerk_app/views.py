@@ -77,7 +77,7 @@ def allowed(request):
 		request.session["token_code"] = token_code
 	except KeyError:
 		return HttpResponseRedirect('login_home')
-	return HttpResponseRedirect('dashboard')
+	return HttpResponseRedirect('dashboard_test')
 
 def denied(request):
 	request.session["token_code"] = settings.SESSION_TOKEN_LOGGED_OUT
@@ -94,16 +94,24 @@ def admin_index(request):
 	else:
 		form = AdminUploadFileForm()
 	return render(request, 'digitalclerk_app/admin-upload.html', {'form': form})
-	
+
+# Dashboard home page
+def dashboard_test(request):
+	url = settings.UCLAPI_URL + "/oauth/user/data"
+	params = {
+		'token': request.session["token_code"],
+		'client_secret': settings.UCLAPI_CLIENT_SECRET
+	}
+	user_data = requests.get(url, params=params)
+	modules_arr = getPersonalModules(request.session['token_code'])
+	data = {
+		'user_data': user_data.json(),
+		'modules': modules_arr,
+	}
+	return render(request, 'digitalclerk_app/dashboard_test.html', data)
+
 # Dashboard home page
 def dashboard(request):
-	# url = settings.UCLAPI_URL + "/oauth/user/data"
-	# getPersonalModules(request.session['token_code'])
-	# params = {
-	# 	'token': request.session["token_code"],
-	# 	'client_secret': settings.UCLAPI_CLIENT_SECRET
-	# }
-	# user_data = requests.get(url, params=params)
 	mock_module = MockModules()
 	modules_arr = mock_module.listModules
 	data = {

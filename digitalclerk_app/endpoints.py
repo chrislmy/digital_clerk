@@ -20,10 +20,10 @@ def getPersonalModules(token_code):
 	for events in events_array:
 		module = {
 			'module_code': events['module']['module_id'],
-			'module_name': events['module']['name']
+			'module_name': events['module']['name'] 
 		}
 		module_list.append(module)
 	unique_module_list = {v['module_code']:v for v in module_list}.values()
-	print(unique_module_list)
+	return unique_module_list
 
 

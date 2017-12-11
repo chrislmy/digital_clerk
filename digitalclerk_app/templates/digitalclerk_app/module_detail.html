@@ -4,7 +4,7 @@
 
 {% block main %}
 	<span class="navigation-box"><a href="{% url 'digitalclerk_app:dashboard' %}">Dashboard</a> / {{ module_code }}</span>
-	<h2 class="primary-header1" style="margin-top: 1rem;">This is {{ module_code }} YOU ARE {{user_upi}} STATUS: {{user_status}}</h2>
+	<h2 class="primary-header1" style="margin-top: 1rem;">This is {{ module_code }}</h2>
 	<!-- Form to filter lecturer/assistant names -->
 	<form id="officeHourFilterForm" action="{% url 'digitalclerk_app:module_details' module_code %}" method="POST">
 		{% csrf_token %}
