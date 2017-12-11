@@ -119,13 +119,13 @@ MODULE_DETAIL_DASHBOARD_PROFILE = 'STUDENT_PROFILE_1'
 ```
 The enumerable statuses for each profile is as below:
 
-```STUDENT_PROFILE_1``` to assign data for Student profile 1
+```STUDENT_PROFILE_1``` to assign data for **Student profile 1**
 
-```STUDENT_PROFILE_2``` to assign data for Student profile 2
+```STUDENT_PROFILE_2``` to assign data for **Student profile 2**
 
-```LECTURER_PROFILE``` to assign data for Lecturer profile
+```LECTURER_PROFILE``` to assign data for **Lecturer profile**
 
-```ASSISTANT_PROFILE ``` to assign data for Assistant profile
+```ASSISTANT_PROFILE ``` to assign data for **Assistant profile**
 
 *** Note that these enumarables are used for all the 3 pages.
 
