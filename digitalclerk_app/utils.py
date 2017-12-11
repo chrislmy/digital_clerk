@@ -2,10 +2,16 @@ from .helper_classes import MockUserProfile, MockModules
 
 from .models import OfficeHours, Request, Interaction, Feedback
 from django.utils import timezone
+from binascii import hexlify
 
 import xlrd, datetime
 import json
 import os
+
+# State for Oauth2.0 api
+def generate_state():
+    client_secret = hexlify(os.urandom(32)).decode()
+    return client_secret
 
 def office_hours_to_dict(office_hours_query_set):
 	office_hours_dict_array = []

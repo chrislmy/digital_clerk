@@ -1,0 +1,75 @@
+{% if office_hour_is_over == 1 %}
+	<h5 class="warning-box">This is office hour has passed. Please find another available office hour</h4>
+{% else %}
+	<div class="row" style="margin-top: 1rem">
+		<div class="col-6 col-md-6" >
+			<div class="card">
+				<div class="card-header card-collapse card-header-open font-size-lg" data-toggle="collapse" href="#raiseRequestBox">
+					<strong>Raise a request</strong>
+				</div>
+				<div class="collapse" id="raiseRequestBox">
+					<div class="card-body">	
+						<h4 class="card-title primary-header3">Your request will be placed in a queue and a peer teacher will be ready to see you soon.</h4>
+						<form id="addRequestForm" action="{% url 'digitalclerk_app:add_request' office_hour_id user_upi lecturer_id %}" method="POST">
+							{% csrf_token %}
+							<div class="form-group">
+					      		<label for="{{ request_form.request_title.id_for_label }}">I am working on:</label>
+					      		{{ request_form.request_title }}
+					    	</div>
+					    	<div class="form-group">
+					      		<label for="{{ request_form.request_description.id_for_label }}">My problem is:</label>
+					      		{{ request_form.request_description }}
+					    	</div>
+					    	<div class="form-group">
+					      		<label for="{{ request_form.tried_solutions.id_for_label }}">I have tried:</label>
+					      		{{ request_form.tried_solutions }}
+					    	</div>
+						    <div id="requestFormButtonSection">
+						    	{% if raised_request == 1 %}
+						    		<p style="border: 1px solid red; padding: 0.5rem; color: red;"><strong>You can only raise one request at a time</strong></p>
+						    	{% else %}
+						    		<input style="color: white; width: 33%;" id="submitRequest" class="btn btn-primary" type="submit" value="Submit Request" />
+						    	{% endif %}
+					    	</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-6 col-md-6">
+			<div class="card">
+				<div class="card-header card-collapse card-header-open font-size-lg" data-toggle="collapse" href="#yourRequestBox">
+					<strong>Your request</strong>
+				</div>
+				<div class="collapse show" id="yourRequestBox">
+					<div class="card-body" id="studentRequestSection">
+						{% if not my_request %}
+							<p class="font-size-lg">You have yet to raise a request</p>
+						{% elif my_request %}
+							{% if prior_request_count == 0 %}
+								{% if opened_interaction == 1 %}
+									<p style="color: blue;"><strong>Your peer teacher has opened an interaction! Please see him now</strong></p>
+								{% else %}
+									<p style="color: blue;"><strong>There are no requests ahead of you. A peer teacher should be seeing you very soon!</strong></p>
+								{% endif %}
+							{% else %}
+								{% if opened_interaction == 1 %}
+									<p style="color: blue;"><strong>Your peer teacher has opened an interaction! Please see him now</strong></p>
+								{% else %}
+									<p style="color: red;"><strong>There are {{prior_request_count}} requests raised before you. Please wait...</strong></p>
+								{% endif %}
+							{% endif %}
+			        		<p><strong>You are working on</strong>: {{my_request.request_title}}</p>
+							<p><strong>Your Problem is</strong>: {{my_request.request_description}}</p>
+							<p><strong>You tried</strong>: {{my_request.tried_solutions}}</p>
+							{% if opened_interaction == 0 %}
+								<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editRequestModal">Edit Request</button>
+				   				<a href="{% url 'digitalclerk_app:close_request' office_hour_id lecturer_id my_request.id %}" class="btn btn-danger">Close Request</a>
+				   			{% endif %}
+				   		{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endif %}

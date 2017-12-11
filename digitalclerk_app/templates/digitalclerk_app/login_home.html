@@ -1,0 +1,10 @@
+{% extends "digitalclerk_app/skeleton.html" %}
+
+{% block title %} Office Hour Dashboard {% endblock %}
+
+{% block main %}
+	<form action="{% url 'digitalclerk_app:login_process' %}" method="POST">
+    	{% csrf_token %}
+    	<button type="submit">Log in with UCL API</button>
+	</form>
+{% endblock %}

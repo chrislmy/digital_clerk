@@ -1,0 +1,53 @@
+{% if past_requests %}
+	{% for r in past_requests %}
+		<div class="card" style="margin-top: 1rem">
+			<div class="card-header card-header-addressed card-collapse" data-toggle="collapse" href="#request{{r.request.id}}">
+				<span style="float: left">Request Raised at {{r.request.time_raised}}</span>
+				<span style="float: right">Status: 
+					{% if r.status == 'Abandoned' %}
+						<span style="color: #e03e16;"><strong>{{r.status}}</strong></span>
+					{% else %}
+						<span style="color: #1aaf13;"><strong>{{r.status}}</strong></span>
+					{% endif %}
+				</span>
+			</div>
+			<div class="collapse" id="request{{r.request.id}}">
+				<div class="card-body">
+					<p class="font-size-md"><strong>I am working on: </strong> {{r.request.request_title}}</p><hr>
+					<p class="font-size-md"><strong>My problem is: </strong> {{r.request.request_description}}</p><hr>
+					<p class="font-size-md"><strong>I have tried: </strong> {{r.request.tried_solutions}}</p><hr>
+					{% if r.feedback %}
+						<a href="" data-toggle="modal" data-target="#feedbackModal{{r.request.id}}">You have feedback from {{r.feedback_owner}}! Click to see feedback.</a>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		<!-- Feedback modal -->
+		<div id="feedbackModal{{r.request.id}}" class="modal fade">
+		    <div class="modal-dialog">
+		        <div class="modal-content">
+		            <div class="modal-header">
+		            	<h4 id="addOfficeHourTitle" class="primary-header2 modal-title">Your Feedback Report</h4>
+		                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only"></span></button>
+		            </div>
+		            <div id="modalBody" class="modal-body">
+		            	<h4 class="primary-header3">{{r.feedback_owner}} thinks your next steps should be to</h4>
+		            	{% if r.feedback.next_steps == '' %}
+		            		<p class="font-size-md">None</p>
+		            	{% else %}
+		            		<p class="font-size-md">{{r.feedback.next_steps}}</p>
+		            	{% endif %}
+		            	<h4 class="primary-header3">Additional comments from {{r.feedback_owner}}</h4>
+		            	{% if r.feedback.foot_note == '' %}
+		            		<p class="font-size-md">None</p>
+		            	{% else %}
+		            		<p class="font-size-md">{{r.feedback.foot_note}}</p>
+		            	{% endif %}
+		            </div>
+		        </div>
+		    </div>
+		</div>
+	{% endfor %}
+{% else %}
+	<p class="font-size-lg">You have no previous requests</p>
+{% endif %}
