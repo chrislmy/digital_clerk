@@ -24,11 +24,11 @@ SECRET_KEY = 'y_m*)433eud(dm+@2-+0$-8%w@sh^4ko7!y#=q#7jq8)s&+^s+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# /*** This wildcard pattern is only used for local development only! ***/
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'digitalclerk_app.apps.DigitalclerkAppConfig',
     'django.contrib.admin',
@@ -47,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'digitalclerk_app.middleware.AutoLoginRedicrect',
 ]
 
 ROOT_URLCONF = 'digitalclerk.urls'
@@ -91,6 +92,17 @@ EMAIL_HOST_PASSWORD = 'sejarahsux1'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
+# OAuth2.0 settings
+UCLAPI_URL = "https://uclapi.com"
+UCLAPI_CLIENT_ID = "2427587556461725.8961107549887679"
+UCLAPI_URL = "https://uclapi.com"
+UCLAPI_CLIENT_SECRET = "d35f152647087eee2d36885cef33ce3597f2fd6faacbbb7db48dcfab5fae4799"
+
+# Config for user profiles
+MODULE_DETAIL_DASHBOARD_PROFILE = 'STUDENT_PROFILE_2' # Sets the profile for the dashboard page of each module
+OFFICE_HOUR_DASHBOARD_STUDENT_PROFILE = 'STUDENT_PROFILE_1' # Sets the student user profile that raises a request
+OFFICE_HOUR_DASHBOARD_STAFF_PROFILE = 'ASSISTANT_PROFILE' # Sets the lecturer who is in charge of dealing with request in an office hour
+
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
@@ -109,6 +121,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Oauth2.0 token session states
+SESSION_TOKEN_LOGGED_OUT = "logged_out"
+SESSION_TOKEN_LOGGING_IN = "logging_in"
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/

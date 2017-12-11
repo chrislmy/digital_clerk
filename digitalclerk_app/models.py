@@ -1,5 +1,8 @@
 from django.db import models
 
+class OAuthToken(models.Model):
+    code = models.CharField(max_length=80)
+
 class OfficeHours(models.Model):
 	custom_profile_fk = models.IntegerField()
 	module_code = models.CharField(max_length=50)

@@ -1,0 +1,47 @@
+{% if open_requests %}
+	{% for r in open_requests %}
+		<div class="card openRequest" style="margin-top: 1rem">
+			<div class="card-header card-header-pending card-collapse" data-toggle="collapse" href="#request{{r.request.id}}">
+				<span style="float: left">{{r.owner}}</span><span style="float: right">Request Raised at {{r.request.time_raised}}</span>
+			</div>
+			<div class="collapse" id="request{{r.request.id}}">
+				<div class="card-body">
+					<p><strong>I am working on: </strong> {{r.request.request_title}}</p><hr>
+					<p><strong>My problem is: </strong> {{r.request.request_description}}</p><hr>
+					<p><strong>I have tried: </strong> {{r.request.tried_solutions}}</p><hr>
+					<a href="{% url 'digitalclerk_app:open_interaction' office_hour_id lecturer_id r.request.id 0 0 %}" class="btn btn-primary">Open Interaction</a>
+					<a href="" data-toggle="modal" data-target="#nonInteractionfeedbackModal{{r.request.id}}" class="btn btn-danger">Cancel Request</a>
+				</div>
+			</div>
+		</div>
+		<!-- Feedback modal without interaction-->
+		<div id="nonInteractionfeedbackModal{{r.request.id}}" class="modal fade">
+		    <div class="modal-dialog">
+		        <div class="modal-content">
+		            <div class="modal-header">
+		            	<h4 id="addOfficeHourTitle" class="primary-header2 modal-title">Feedback Form</h4>
+		                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only"></span></button>
+		            </div>
+		            <div id="modalBody" class="modal-body">
+		            	<h4 class="card-title primary-header3">Would you like to provide some optional feedback before addressing this request.</h4>
+		            	<form id="feedbackForm" action="{% url 'digitalclerk_app:open_interaction' office_hour_id lecturer_id r.request.id 2 1 %}" method="POST">
+							{% csrf_token %}
+							<div class="form-group">
+						    	<label for="{{ form.next_steps.id_for_label }}">What should the student do next?</label>
+						    	{{ form.next_steps }}
+						    </div>
+							<div class="form-group">
+						    	<label for="{{ form.foot_note.id_for_label }}">Any additional comments?</label>
+						    	{{ form.foot_note }}
+						    </div>
+					    	<a href="{% url 'digitalclerk_app:open_interaction' office_hour_id lecturer_id r.request.id 2 0 %}" class="btn btn-danger">No Thanks</a>
+					    	<input style="color: white; width: 32%;" id="submitWithFeedback" class="btn btn-primary" type="submit" value="Submit Feedback" />
+						</form>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+	{% endfor %}
+{% else %}
+	<p class="font-size-lg">There are no open requests.</p>
+{% endif %}

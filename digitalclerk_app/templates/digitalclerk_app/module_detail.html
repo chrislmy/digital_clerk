@@ -4,7 +4,7 @@
 
 {% block main %}
 	<span class="navigation-box"><a href="{% url 'digitalclerk_app:dashboard' %}">Dashboard</a> / {{ module_code }}</span>
-	<h2 class="primary-header1" style="margin-top: 1rem;">This is {{ module_code }}</h2>
+	<h2 class="primary-header1" style="margin-top: 1rem;">This is {{ module_code }} YOU ARE {{user_upi}} STATUS: {{user_status}}</h2>
 	<!-- Form to filter lecturer/assistant names -->
 	<form id="officeHourFilterForm" action="{% url 'digitalclerk_app:module_details' module_code %}" method="POST">
 		{% csrf_token %}
@@ -33,10 +33,6 @@
 	            <div id="modalBody" class="modal-body">
 	            	<form id="officeHourForm" action="{% url 'digitalclerk_app:add_office_hour' %}" method="POST">
 						{% csrf_token %}
-						<div id="officeHourOrganiserSection" class="form-group">
-					    	<label class="primary-header3" for="">Organiser:</label>
-					    	<span style="font-weight: bold;" id="officeHourOrganiser"></span>
-					    </div>
 						<div class="form-group">
 					    	<label for="{{ form.office_hour_title.id_for_label }}">Title:</label>
 					    	{{ form.office_hour_title }}
