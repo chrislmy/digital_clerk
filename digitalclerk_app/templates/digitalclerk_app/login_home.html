@@ -3,8 +3,10 @@
 {% block title %} Office Hour Dashboard {% endblock %}
 
 {% block main %}
+	<h2 class="primary-header1" >Welcome to Digital Clerk</h2><hr>
+	<h2 class="primary-header2" >Login with your UCL account</h2><hr>
 	<form action="{% url 'digitalclerk_app:login_process' %}" method="POST">
     	{% csrf_token %}
-    	<button type="submit">Log in with UCL API</button>
+    	<button type="submit">Log in with UCL</button>
 	</form>
 {% endblock %}

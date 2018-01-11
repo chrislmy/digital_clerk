@@ -46,3 +46,16 @@ class Feedback(models.Model):
 	lecturer = models.IntegerField()
 	next_steps = models.CharField(max_length=300, null=True, blank=True)
 	foot_note = models.CharField(max_length=300, null=True, blank=True)
+
+class UserProfile(models.Model):
+	upi = models.CharField(max_length=15)
+	username = models.CharField(max_length=15)
+	email = models.CharField(max_length=150)
+	department = models.CharField(max_length=150)
+	full_name = models.CharField(max_length=150)
+	status = models.CharField(max_length=25)
+
+class Enrolment(models.Model):
+	user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+	module_code = models.CharField(max_length=50)
+	module_name = models.CharField(max_length=300)

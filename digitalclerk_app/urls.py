@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^process_logout$', views.process_logout, name='process_logout'),
     url(r'^callback', views.oauth_callback, name='oauth_callback'),
     url(r'^dashboard$', views.dashboard, name='dashboard'),
+    url(r'^dashboard_test$', views.dashboard_test, name='dashboard_test'),
     url(r'^admin_index$', views.admin_index, name='admin_index'),
     url(r'^dashboard/module_details/(?P<module_code>[0-9A-Za-z]+)$', views.module_details, name='module_details'),
     url(r'^add_office_hour$', views.add_office_hour, name='add_office_hour'),
