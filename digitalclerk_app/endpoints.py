@@ -40,7 +40,6 @@ def store_user(token_code):
 	try:
 		user_profile = UserProfile.objects.get(upi=user_upi)
 	except UserProfile.DoesNotExist:
-		print('making new user to store......')
 		print(user_data_json['email'])
 		user_profile = UserProfile(
 			upi=user_data_json['upi'],
@@ -50,7 +49,6 @@ def store_user(token_code):
 			full_name=user_data_json['full_name']
 		)
 		user_profile.save()
-		print('SHIT-------------')
 		enrolled_modules = getPersonalModules(token_code)
 		print('user_id = ' + str(user_profile.id))
 		store_modules(enrolled_modules, user_profile)
