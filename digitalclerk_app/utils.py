@@ -1,8 +1,9 @@
 from .helper_classes import MockUserProfile, MockModules
 
-from .models import OfficeHours, Request, Interaction, Feedback
+from .models import OfficeHours, Request, Interaction, Feedback, Enrolment, UserProfile
 from django.utils import timezone
 from binascii import hexlify
+from .endpoints import *
 
 import xlrd, datetime
 import json
@@ -15,12 +16,11 @@ def generate_state():
 
 def office_hours_to_dict(office_hours_query_set):
 	office_hours_dict_array = []
-	user_profile = MockUserProfile()
 	for office_hour in office_hours_query_set:
 		office_hour_dict = {
 			'id': office_hour.id,
 			'lecturer_id': office_hour.custom_profile_fk,
-			'lecturer': user_profile.getNameFromId(office_hour.custom_profile_fk),
+			'lecturer': get_user_full_name(office_hour.custom_profile_fk),
 			'title': office_hour.title,
 			'date': str(office_hour.start_date),
 			'start': (str(office_hour.start_date) + "T" + office_hour.start_time),
@@ -42,12 +42,13 @@ def office_hours_is_over(office_hour_id):
 
 def get_lecturers_for_module(module_code):
 	lecturers_dict_array = []
-	user_profile = MockUserProfile()
 	office_hours_query_set = OfficeHours.objects.filter(module_code=module_code)
 	for office_hour in office_hours_query_set:
+		lecturer_id = office_hour.custom_profile_fk
+		lecturer = UserProfile.objects.get(pk=lecturer_id)
 		lecturer_dict = {
-			'id': office_hour.custom_profile_fk,
-			'name': user_profile.getNameFromId(office_hour.custom_profile_fk)
+			'id': lecturer_id,
+			'name': lecturer.full_name
 		}
 		lecturers_dict_array.append(lecturer_dict)
 	unique_lecturer_list = {v['id']:v for v in lecturers_dict_array}.values()
@@ -66,7 +67,6 @@ def get_prior_requests_count(office_hour_id, request_id):
 
 def format_requests(requests_query_set):
 	formatted_requests = []
-	user_profile = MockUserProfile()
 	interaction_status_list = ['Pending', 'Resolved', 'Abandoned']
 	for request in requests_query_set:
 		interaction = None
@@ -80,7 +80,7 @@ def format_requests(requests_query_set):
 			interaction = None
 		try:
 			feedback = Feedback.objects.get(request_id=request.id)
-			feedback_owner = user_profile.getNameFromId(feedback.lecturer)
+			feedback_owner = get_user_full_name(feedback.lecturer)
 		except Feedback.DoesNotExist:
 			feedback = None
 		formatted_request = {
@@ -88,7 +88,7 @@ def format_requests(requests_query_set):
 			'interaction': interaction,
 			'feedback': feedback,
 			'feedback_owner': feedback_owner, 
-			'owner': user_profile.getNameFromId(request.request_user),
+			'owner': get_user_full_name(request.request_user),
 			'status': status
 		}
 		formatted_requests.append(formatted_request)
@@ -96,13 +96,12 @@ def format_requests(requests_query_set):
 
 def format_interactions(interaction_query_set):
 	formatted_interactions = []
-	user_profile = MockUserProfile()
 	interaction_status_list = ['Pending', 'Resolved', 'Abandoned']
 	for interaction in interaction_query_set:
 		request = Request.objects.get(pk=interaction.request_id)
 		formatted_interaction = {
 			'request': request,
-			'owner': user_profile.getNameFromId(request.request_user),
+			'owner': get_user_full_name(request.request_user),
 			'interaction': interaction,
 			'status': interaction_status_list[interaction.status]
 		}

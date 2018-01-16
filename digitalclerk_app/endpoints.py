@@ -5,6 +5,43 @@ import os
 from django.conf import settings
 from .models import OfficeHours, Request, Interaction, Feedback, UserProfile, Enrolment
 
+def get_user_details(token_code):
+	url = settings.UCLAPI_URL + "/oauth/user/data"
+	params = {
+		'token': token_code,
+		'client_secret': settings.UCLAPI_CLIENT_SECRET
+	}
+	api_user_data = requests.get(url, params=params)
+	api_user_data_json = api_user_data.json()
+	user_profile = UserProfile.objects.get(upi=api_user_data_json['upi'])
+	user_profile_dict = {
+		'id': user_profile.id,
+		'upi': user_profile.upi,
+		'username': user_profile.username,
+		'email': user_profile.email,
+		'department': user_profile.department,
+		'full_name': user_profile.full_name,
+		'status': user_profile.status
+	}
+	return user_profile_dict
+
+def get_user_full_name(user_id):
+	user_profile = UserProfile.objects.get(pk=user_id)
+	user_full_name = user_profile.full_name
+	return user_full_name
+
+def get_user_email(user_id):
+	user_profile = UserProfile.objects.get(pk=user_id)
+	user_email = user_profile.email
+	return user_email
+
+def user_is_enrolled(user_id, module_code):
+	user_enrolment = Enrolment.objects.filter(user_id=user_id, module_code=module_code)
+	if len(user_enrolment) == 0:
+		return False
+	else:
+		return True
+
 def getPersonalModules(token_code):
 	url = settings.UCLAPI_URL + "/timetable/personal"
 	params = {
@@ -64,3 +101,4 @@ def store_modules(module_list, user_profile):
 			module_name=module_name
 		)
 		enrolment.save()
+

@@ -28,8 +28,9 @@ class AutoLoginRedicrect(MiddlewareMixin):
             if request.path == reverse('digitalclerk_app:oauth_callback'):
                 return
             if not request.path == reverse('digitalclerk_app:login_process'):
+                print('OH DEAR')
                 request.session['token_code'] = settings.SESSION_TOKEN_LOGGING_IN
-                return HttpResponseRedirect('login_process')
+                return HttpResponseRedirect(reverse('digitalclerk_app:login_process'))
         return
     except KeyError:
         request.session['token_code'] = settings.SESSION_TOKEN_LOGGED_OUT

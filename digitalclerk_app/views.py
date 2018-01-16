@@ -100,16 +100,12 @@ def admin_index(request):
 	return render(request, 'digitalclerk_app/admin-upload.html', {'form': form})
 	
 def dashboard_test(request):
-	url = settings.UCLAPI_URL + "/oauth/user/data"
-	params = {
-		'token': request.session["token_code"],
-		'client_secret': settings.UCLAPI_CLIENT_SECRET
-	}
-	user_data = requests.get(url, params=params)
-	modules_arr = getPersonalModules(request.session['token_code'])
+	auth_token = request.session['token_code']
+	user_data = get_user_details(auth_token)
+	modules_arr = getPersonalModules(auth_token)
 	print(modules_arr)
 	data = {
-		'user_data': user_data.json(),
+		'user_data': user_data,
 		'modules': modules_arr,
 	}
 	return render(request, 'digitalclerk_app/dashboard_test.html', data)
@@ -125,37 +121,51 @@ def dashboard(request):
 
 # Module detail page with CALENDARS and OFFICE HOURS
 def module_details(request, module_code):
-	user_profile = MockUserProfile()
-	user_upi = 0
-	user_status = 'none'
-	if(settings.MODULE_DETAIL_DASHBOARD_PROFILE == 'LECTURER_PROFILE'):
-		user_upi = user_profile.lecturerProfile()['upi']
-		user_status = user_profile.lecturerProfile()['status']
-	elif(settings.MODULE_DETAIL_DASHBOARD_PROFILE == 'ASSISTANT_PROFILE'):
-		user_upi = user_profile.assistantProfile()['upi']
-		user_status = user_profile.assistantProfile()['status']
-	elif(settings.MODULE_DETAIL_DASHBOARD_PROFILE == 'STUDENT_PROFILE_1'):
-		user_upi = user_profile.studentProfile1()['upi']
-		user_status = user_profile.studentProfile1()['status']
-	elif(settings.MODULE_DETAIL_DASHBOARD_PROFILE == 'STUDENT_PROFILE_2'):
-		user_upi = user_profile.studentProfile2()['upi']
-		user_status = user_profile.studentProfile2()['status']
+	auth_token = request.session['token_code']
+	user_profile = get_user_details(auth_token)
+	print('-------------- User Details for module page ---------------')
+	print(user_profile)
+	user_upi = int(user_profile['id'])
+	user_status = user_profile['status']
+	user_enrolled = user_is_enrolled(user_upi, module_code)
+
+	# ****** TESTING CODE ********
+	# user_profile = MockUserProfile()
+	# user_upi = 0
+	# user_status = 'none'
+	# if(settings.MODULE_DETAIL_DASHBOARD_PROFILE == 'LECTURER_PROFILE'):
+	# 	user_upi = user_profile.lecturerProfile()['upi']
+	# 	user_status = user_profile.lecturerProfile()['status']
+	# elif(settings.MODULE_DETAIL_DASHBOARD_PROFILE == 'ASSISTANT_PROFILE'):
+	# 	user_upi = user_profile.assistantProfile()['upi']
+	# 	user_status = user_profile.assistantProfile()['status']
+	# elif(settings.MODULE_DETAIL_DASHBOARD_PROFILE == 'STUDENT_PROFILE_1'):
+	# 	user_upi = user_profile.studentProfile1()['upi']
+	# 	user_status = user_profile.studentProfile1()['status']
+	# elif(settings.MODULE_DETAIL_DASHBOARD_PROFILE == 'STUDENT_PROFILE_2'):
+	# 	user_upi = user_profile.studentProfile2()['upi']
+	# 	user_status = user_profile.studentProfile2()['status']
+
 	form = AddOfficeHourForm()
 	office_hours = []
-	if request.POST.get('lecturer'):
-		lecturer_id = request.POST.get('lecturer')
-		if(lecturer_id == 'all'):
-			office_hours = OfficeHours.objects.filter(module_code=module_code)
+	office_hours_json = None
+	lecturer_list = None
+	if user_enrolled == True:
+		if request.POST.get('lecturer'):
+			lecturer_id = request.POST.get('lecturer')
+			if(lecturer_id == 'all'):
+				office_hours = OfficeHours.objects.filter(module_code=module_code)
+			else:
+				office_hours = OfficeHours.objects.filter(custom_profile_fk=lecturer_id, module_code=module_code)
 		else:
-			office_hours = OfficeHours.objects.filter(custom_profile_fk=lecturer_id, module_code=module_code)
-	else:
-		office_hours = OfficeHours.objects.filter(module_code=module_code)
-	office_hours_dict_array = office_hours_to_dict(office_hours)
-	office_hours_json = json.dumps(office_hours_dict_array)
-	lecturer_list = get_lecturers_for_module(module_code)
+			office_hours = OfficeHours.objects.filter(module_code=module_code)
+		office_hours_dict_array = office_hours_to_dict(office_hours)
+		office_hours_json = json.dumps(office_hours_dict_array)
+		lecturer_list = get_lecturers_for_module(module_code)
 	data = {
 		'user_upi': user_upi,
 		'user_status': user_status,
+		'user_is_enrolled': user_enrolled,
 		'module_code': module_code,
 		'form': form,
 		'lecturers': lecturer_list,
@@ -201,12 +211,21 @@ def delete_office_hour(request):
 
 # Office hour dashboard for monitoring REQUESTS and INTERACTIONS
 def office_hour_dashboard_student(request):
-	user_profile = MockUserProfile()
-	user_upi = 0;
-	if(settings.OFFICE_HOUR_DASHBOARD_STUDENT_PROFILE == 'STUDENT_PROFILE_1'):
-		user_upi = user_profile.studentProfile1()['upi']
-	elif(settings.OFFICE_HOUR_DASHBOARD_STUDENT_PROFILE == 'STUDENT_PROFILE_2'):
-		user_upi = user_profile.studentProfile2()['upi']
+	auth_token = request.session['token_code']
+	user_profile = get_user_details(auth_token)
+	user_upi = user_profile['id']
+
+	print('-------------- User Details for STUDENT_DASHBOARD page ---------------')
+	print(user_profile)
+
+	# ******* TEST CODE ********
+	# user_profile = MockUserProfile()
+	# user_upi = 0;
+	# if(settings.OFFICE_HOUR_DASHBOARD_STUDENT_PROFILE == 'STUDENT_PROFILE_1'):
+	# 	user_upi = user_profile.studentProfile1()['upi']
+	# elif(settings.OFFICE_HOUR_DASHBOARD_STUDENT_PROFILE == 'STUDENT_PROFILE_2'):
+	# 	user_upi = user_profile.studentProfile2()['upi']
+
 	office_hour_id = int(request.GET.get('office-hour-id'))
 	office_hour = OfficeHours.objects.get(pk=office_hour_id)
 	lecturer_id = int(request.GET.get('lecturer'))
@@ -233,7 +252,7 @@ def office_hour_dashboard_student(request):
 		'office_hour_id': office_hour_id,
 		'lecturer_id': lecturer_id,
 		'office_hour': office_hour,
-		'lecturer': user_profile.getNameFromId(lecturer_id),
+		'lecturer': get_user_full_name(lecturer_id),
 		'request_form': AddRequestForm(),
 		'my_request': my_request,
 		'raised_request': raised_request,
@@ -289,15 +308,22 @@ def refresh_past_requests(request):
 	return render(request, 'digitalclerk_app/office_hour_dashboard_student/refresh_past_requests.html', data)
 
 def office_hour_dashboard(request):
-	user_profile = MockUserProfile()
-	user_upi = 0
-	user_status = 'none'
-	if(settings.OFFICE_HOUR_DASHBOARD_STAFF_PROFILE == 'LECTURER_PROFILE'):
-		user_upi = user_profile.lecturerProfile()['upi']
-		user_status = user_profile.lecturerProfile()['status']
-	elif(settings.OFFICE_HOUR_DASHBOARD_STAFF_PROFILE == 'ASSISTANT_PROFILE'):
-		user_upi = user_profile.assistantProfile()['upi']
-		user_status = user_profile.assistantProfile()['status']
+	auth_token = request.session['token_code']
+	user_profile = get_user_details(auth_token)
+	user_upi = user_profile['id']
+	user_status = user_profile['status']
+
+	# ******** TESTING CODE ********
+	# user_profile = MockUserProfile()
+	# user_upi = 0
+	# user_status = 'none'
+	# if(settings.OFFICE_HOUR_DASHBOARD_STAFF_PROFILE == 'LECTURER_PROFILE'):
+	# 	user_upi = user_profile.lecturerProfile()['upi']
+	# 	user_status = user_profile.lecturerProfile()['status']
+	# elif(settings.OFFICE_HOUR_DASHBOARD_STAFF_PROFILE == 'ASSISTANT_PROFILE'):
+	# 	user_upi = user_profile.assistantProfile()['upi']
+	# 	user_status = user_profile.assistantProfile()['status']
+
 	office_hour_id = int(request.GET.get('office-hour-id'))
 	office_hour = OfficeHours.objects.get(pk=office_hour_id)
 	lecturer_id = int(request.GET.get('lecturer'))
@@ -313,7 +339,7 @@ def office_hour_dashboard(request):
 		'user_status': user_status,
 		'office_hour_id': office_hour_id,
 		'lecturer_id': lecturer_id,
-		'lecturer': user_profile.getNameFromId(lecturer_id),
+		'lecturer':get_user_full_name(lecturer_id),
 		'open_requests': open_requests,
 		'latest_open_request_id': latest_open_request_id,
 		'closed_requests': closed_requests,
@@ -369,12 +395,18 @@ def close_request(request, office_hour_id, lecturer_id, help_request_id):
 def open_interaction(request, office_hour_id, lecturer_id, help_request_id, status, has_feedback):
 	help_request = Request.objects.get(pk=help_request_id)
 	office_hour = OfficeHours.objects.get(pk=office_hour_id)
-	user_profile = MockUserProfile()
-	lecturer_name = user_profile.getNameFromId(int(lecturer_id))
-	user_name = user_profile.getNameFromId(help_request.request_user)
-	user_email = user_profile.getEmailFromId(help_request.request_user)
+	user_fullname = get_user_full_name(help_request.request_user)
+	lecturer_name = get_user_full_name(lecturer_id)
+	user_email = get_user_email(help_request.request_user)
+
+	# ****** TEST CODE *******
+	# user_profile = MockUserProfile()
+	# lecturer_name = user_profile.getNameFromId(int(lecturer_id))
+	# user_name = user_profile.getNameFromId(help_request.request_user)
+	# user_email = user_profile.getEmailFromId(help_request.request_user)
+
 	subject = "Digital Clerk - Interaction Opened!"
-	email_message = 'Hello ' + user_name + ',\n\n' 
+	email_message = 'Hello ' + user_fullname + ',\n\n' 
 	email_message += lecturer_name + ' has opened an interaction for one of your requests in the office hour "' 
 	email_message += office_hour.title + '".\n' 
 	email_message += 'The office hour is from ' + office_hour.start_time + ' to ' + office_hour.end_time
