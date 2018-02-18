@@ -5,7 +5,7 @@
     <add key="WSGI_ALT_VIRTUALENV_ACTIVATE_THIS"
          value="D:\home\site\wwwroot\env\Scripts\python.exe" />
     <add key="WSGI_HANDLER"
-         value="ptvs_virtualenv_proxy.get_venv_handler()" />
+         value="django.core.wsgi.get_wsgi_application()" />
     <add key="PYTHONPATH" value="D:\home\site\wwwroot" />
   </appSettings>
   <system.web>
