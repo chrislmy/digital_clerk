@@ -1,16 +1,20 @@
-{% extends "digitalclerk_app/skeleton.html" %}
+{% extends "digitalclerk_app/authenticated-view.html" %}
 
 {% block title %} Digital Clerk - {{ module_code }} {% endblock %}
 
 {% block main %}
 	<span class="navigation-box"><a href="{% url 'digitalclerk_app:dashboard' %}">Dashboard</a> / {{ module_code }}</span>
 	{% if user_is_enrolled %}
-		<h2 class="primary-header1" style="margin-top: 1rem;">This is {{ module_code }}</h2>
+		<h2 class="primary-header1" style="margin-top: 1rem;">This is {{ module_code }} : {{ module_name }}</h2>
+		<p class="font-size-md">
+			<span style="margin-right: 1rem"><i class="fa fa-users" aria-hidden="true"></i> Number of users enrolled: {{num_students_enrolled}}</span>|
+			<span style="margin-left: 1rem"><i class="fa fa-calendar" aria-hidden="true"></i> Number of active office hours: {{num_office_hours}}</span>
+		</p>
 		<!-- Form to filter lecturer/assistant names -->
 		<form id="officeHourFilterForm" action="{% url 'digitalclerk_app:module_details' module_code %}" method="POST">
 			{% csrf_token %}
 			<div class="form-group">
-	      		<label for="inputLecturerFilter">Filter Office Hours by Lecturer/Assistant</label>
+	      		<label for="inputLecturerFilter">Filter Office Hours by Lecturer</label>
 	      		<select id="inputLecturerFilter" name="lecturer" class="form-control">
 	      			<option value=""></option>
 	      			<option value="all">Show All</option>
@@ -49,6 +53,10 @@
 						    <div class="form-group">
 						    	<label for="{{ form.location.id_for_label }}">Location:</label>
 						    	{{ form.location }}
+						    </div>
+						    <div id="recurringField" class="form-group">
+						    	<label for="{{ form.location.recurring_times }}">Recur for:</label>
+						    	{{ form.recurring_times }}
 						    </div>
 						    <span id="hiddenFields"></span>
 						    <a style="color: white; width: 32%;" id="goOfficeHour" class="btn btn-success" href="">Go to Office Hour</a>
@@ -106,10 +114,11 @@
 		        	start:firstDay
         		},
 		        eventClick: function(event, jsEvent, view) {
-		        	initModal('', event.date, event.title, isoToTimeString(event.start), isoToTimeString(event.end), event.location, 'Edit')
+		        	initModal('', event.date, event.title, isoToTimeString(event.start), isoToTimeString(event.end), event.location, 'Edit');
 		        	$('#hiddenFields').html('<input type="hidden" name="module-code" value="{{module_code}}">'
 		        							+ '<input type="hidden" name="office-hour-id" value="'+ event.id +'">'
 		        						);
+		        	$('#recurringField').hide();
 		        	$('#officeHourOrganiser').html(event.lecturer);
 		        	$('#officeHourForm').attr("action", "{% url 'digitalclerk_app:edit_office_hour' %}");
 		        	$('#goOfficeHour').attr("href", "{% url 'digitalclerk_app:office_hour_dashboard_student' %}?office-hour-id=" + event.id + "&lecturer=" + event.lecturer_id);
@@ -139,7 +148,7 @@
         		},
         		dayClick: function(date, jsEvent, view) {
         			var eventDate = date.format();
-        			initModal('Add', eventDate, '', '09:00', '09:30', '', 'Add Office Hour')
+        			initModal('Add', eventDate, '', '09:00', '09:30', '', 'Add Office Hour');
         			$('#hiddenFields').html('<input type="hidden" name="current-date" value="' + eventDate + '">'
 		        							+ '<input type="hidden" name="user-upi" value="{{user_upi}}">'
 		        							+ '<input type="hidden" name="module-code" value="{{module_code}}">'
@@ -149,6 +158,7 @@
         			$('#editOfficeHour').show();
 
         			if('{{user_status}}' !== 'Student'){
+        				$('#recurringField').show();
         				$('#addOfficeHourModal').modal();
         				$('#officeHourForm > .form-group > input').prop("disabled", false);
 		        		$('#officeHourForm > .form-group > select').prop("disabled", false);

@@ -1,11 +1,70 @@
-{% extends "digitalclerk_app/skeleton.html" %}
+{% extends "digitalclerk_app/authenticated-view-admin.html" %}
+
+{% block title %} Digital Clerk: Admin {% endblock %}
 
 {% block main %}
-	<form action="" method="POST" enctype="multipart/form-data">
-	<div class="form-group">
-	    {% csrf_token %}
-	    	{{ form }}
-	    <input style="display: block;" class="btn btn-primary" type="submit" value="Submit" />
-	    </div>
-	</form>
+	<h2 class="primary-header1" style="text-align: center;">You are logged in as an admin.</h2>
+	<h2 class="primary-header2" style="text-align: center; color: black; margin-bottom: 1rem;" >Upload the excel file with a list of help staff below.</h2><hr class="seperator">
+	<div style="margin-top: 2.5rem" class="admin-file-upload-section">
+		<div class="row">
+			<div class="col-12 col-md-4">
+				<div class="vertical-align-wrapper">
+					<div class="vertical-align">
+	  					<h2 style="text-align: center; color: #133e82"><i class="fa fa-file-excel-o fa-2x" aria-hidden="true"></i></h1>
+	  					<p style="text-align: center;">How to format the file.</p>
+	  				</div>
+  				</div>
+  			</div>
+  			<div class="col-12 col-md-8">
+  				<ul>
+  					<li>The file uploaded must be an excel file (.xls and .xlsx are supported).</li>
+  					<li>Please format the header in the follow sequence: First Name, Last Name, Status, Department and finally upi.</li>
+  					<li>Once uploaded the table below should be updated to reflect the data in the excel file.</li>
+  					<li>Users whos upi is present in the file uploaded will be recognized as a help staff member by Digital Clerk.</li>
+  				</ul>
+  			</div>
+		</div><hr style="margin-top: 2rem;" class="seperator">
+		<div style="text-align: center; margin-top: 1.5rem; margin-bottom: 1.5rem;">
+			<form action="" method="POST" enctype="multipart/form-data">
+				<div class="form-group">
+		    		{% csrf_token %}
+		    		<label class="primary-header3" for="{{ form.file.id_for_label }}">Uploaded excel file here:</label>
+		    		{{ form.file }}
+		    		<input style="display: block; margin:auto; margin-top: 0.5rem;" class="btn btn-primary" type="submit" value="Submit File" />
+		    	</div>
+			</form>
+		</div>
+	{% if uploaded_msg %}
+		<p>{{ uploaded_msg }}</p>
+	{% endif %}
+	<table id="excelTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+		<thead>
+		  	<tr>
+		    	<th>{{ excel_data.first_name }}</th>
+		    	<th>{{ excel_data.last_name }}</th> 
+		    	<th>{{ excel_data.status }}</th>
+		    	<th>{{ excel_data.department }}</th>
+		    	<th>{{ excel_data.upi }}</th>
+		  	</tr>
+	  	</thead>
+	  	<tbody>
+			{% for entry in table_entries %}
+				<tr>
+					<td>{{ entry.first_name }}</td>
+					<td>{{ entry.last_name }}</td>
+					<td>{{ entry.status }}</td>
+					<td>{{ entry.department }}</td>
+					<td>{{ entry.upi }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% endblock %}
+
+{% block optional_js %}
+	<script type="text/javascript">
+		$(document).ready(function() {
+	    	$('#excelTable').DataTable();
+		});
+	</script>
 {% endblock %}

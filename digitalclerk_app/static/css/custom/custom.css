@@ -50,9 +50,53 @@
 	border-radius: 5px;
 }
 
+.link-text {
+	color: #007bff;
+}
+
 /* Header */
 .main-header {
 	margin-bottom: 1rem;
+}
+
+.brand-font{
+	font-family: 'Open Sans', sans-serif;
+}
+
+.navbar-font{
+	font-family: 'Roboto', sans-serif;
+}
+
+/* Footer */
+.footer{
+	background-color: #f8f9fa !important;
+	padding: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+/* Login Home Page */
+.home-info{
+	text-align: center;
+}
+
+.home-icon{
+	color: #184ea6;
+}
+
+.features-section{
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+}
+
+.vertical-align-wrapper{
+	display: flex;
+	height: 100%;
+	width: 100%;
+	align-items: center;
+}
+
+.vertical-align{
+	width: 100%;
 }
 
 /* Module details page */

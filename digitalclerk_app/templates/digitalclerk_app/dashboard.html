@@ -1,13 +1,36 @@
-{% extends "digitalclerk_app/skeleton.html" %}
+{% extends "digitalclerk_app/authenticated-view.html" %}
 
-{% block title %} Dashboard {% endblock %}
+{% block title %} My Home {% endblock %}
 
 {% block main %}
-	<h2 class="primary-header1" >Your enrolled modules</h2><hr>
-	<!-- <h2 class="primary-header1" >Welcome {{ user_data.full_name }}</h2><hr> -->
-	{% for module in modules %}
-		<h3 class="primary-header2"><a href="{% url 'digitalclerk_app:module_details' module.code %}">{{ module.code }}</a></h3>
-		<p class="font-size-lg">{{ module.name }}</p>
-		<hr>
-	{% endfor %}
+	<div class="card openRequest" style="margin-top: 1rem; width: 100%">
+		<div class="card-header card-header-open">
+			<strong>Currently logged in user</strong>
+		</div>
+		<div id="currentlyLoggedInUserDetails">
+			<div class="card-body" >
+				<h4 class="primary-header2">{{user_data.full_name}}</h4>
+				<p class="font-size-md"><strong>Username: </strong>{{user_data.username}}</p>
+				<p class="font-size-md"><strong>Department: </strong>{{user_data.department}}</p>
+				<p class="font-size-md"><strong>Email: </strong>{{user_data.email}}</p>
+			</div>
+		</div>
+	</div>
+	<!-- <h2 class="primary-header1" >Your enrolled modules</h2><hr>
+	<h2 class="primary-header2" >Welcome {{ user_data.full_name }}</h2><hr> -->
+	<div class="card openRequest" style="margin-top: 1rem">
+		<div class="card-header card-header-addressed">
+			<strong>Your enrolled modules</strong>
+		</div>
+		<div id="userEnrolledModules">
+			<div class="card-body" >
+				{% for module in modules %}
+					<h3 class="primary-header2"><a href="{% url 'digitalclerk_app:module_details' module.module_code %}">{{ module.module_code }}</a></h3>
+					<p class="font-size-lg">{{ module.module_name }}</p>
+					<hr>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+	
 {% endblock %}

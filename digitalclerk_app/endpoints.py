@@ -21,7 +21,7 @@ def get_user_details(token_code):
 		'email': user_profile.email,
 		'department': user_profile.department,
 		'full_name': user_profile.full_name,
-		'status': user_profile.status
+		'status': user_profile.status,
 	}
 	return user_profile_dict
 
@@ -50,6 +50,7 @@ def getPersonalModules(token_code):
 	}
 	modules = requests.get(url, params=params)
 	modules_json = modules.json()
+	# print(modules_json)
 	timetable = modules_json['timetable']
 	events_array = []
 	module_list = []
@@ -73,6 +74,8 @@ def store_user(token_code):
 	}
 	user_data = requests.get(url, params=params)
 	user_data_json = user_data.json()
+	print("-------User data from /user call------")
+	print(user_data_json)
 	user_upi = user_data_json['upi']
 	try:
 		user_profile = UserProfile.objects.get(upi=user_upi)

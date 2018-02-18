@@ -1,12 +1,83 @@
-{% extends "digitalclerk_app/skeleton.html" %}
+{% extends "digitalclerk_app/unauthenticated-view.html" %}
 
-{% block title %} Office Hour Dashboard {% endblock %}
+{% block title %} Digital Clerk {% endblock %}
 
 {% block main %}
-	<h2 class="primary-header1" >Welcome to Digital Clerk</h2><hr>
-	<h2 class="primary-header2" >Login with your UCL account</h2><hr>
-	<form action="{% url 'digitalclerk_app:login_process' %}" method="POST">
-    	{% csrf_token %}
-    	<button type="submit">Log in with UCL</button>
-	</form>
+	<h2 class="primary-header1" style="text-align: center;">Welcome to Digital Clerk.</h2>
+	<h2 class="primary-header2" style="text-align: center; color: black;" >Digital Clerk is a tool that scales up office hours for computer science learning.</h2>
+	<h2 class="primary-header2" style="text-align: center; margin-bottom:1rem; color: #777f8c;">How does Digital Clerk work?</h2><hr class="seperator">
+
+	<div class="row" style="margin-top: 2rem;">
+  		<div class="col-6 col-md-3 home-info">
+  			<h1 class="home-icon"><i class="fa fa-calendar" aria-hidden="true"></i></h1>
+  			<p>Students can view a list of office hours available for a certain module they are enrolled into which they can then choose one to attend.</p>
+  		</div>
+  		<div class="col-6 col-md-3 home-info">
+  			<h1 class="home-icon"><i class="fa fa-question-circle-o" aria-hidden="true"></i></h1>
+  			<p>Students submits a request for a question or problem and is added into a vitual queue until a staff member is ready to see them.</p>
+  		</div>
+  		<div class="col-6 col-md-3 home-info">
+  			<h1 class="home-icon"><i class="fa fa-list" aria-hidden="true"></i></h1>
+  			<p>Help staff manages the list of questions raised by students which is sorted according to the time the question was raised.</p>
+  		</div>
+  		<div class="col-6 col-md-3 home-info">
+  			<h1 class="home-icon"><i class="fa fa-comment-o" aria-hidden="true"></i></h1>
+  			<p>Help staff are encouraged to provide feedback and "next steps" suggestions for students after addressing their questions.</p>
+  		</div>
+	</div>
+
+	<div style="text-align: center; margin-top:1.5rem; ">
+		<form style="display: inline; margin-right: 0.5rem;" action="{% url 'digitalclerk_app:login_process' %}" method="POST">
+    		{% csrf_token %}
+    		<button class="btn btn-primary" type="submit">Log in with UCL</button>
+		</form>
+		<button data-toggle="modal" data-target="#adminLoginForm" style="margin-left: 0.5rem;" class="btn btn-success" type="submit">Log in as a super admin</button>
+	</div><hr style="margin-top: 2rem;" class="seperator">
+
+	<div class="features-section">
+		<div class="row">
+			<div class="col-12 col-md-4">
+				<div class="vertical-align-wrapper">
+					<div class="vertical-align">
+	  					<h1 style="text-align: center; color: #133e82"><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></h1>
+	  					<p style="text-align: center;">Making the most out of office hours.</p>
+	  				</div>
+  				</div>
+  			</div>
+  			<div class="col-12 col-md-8">
+  				<ul>
+  					<li>Students <strong>must</strong> formulate their questions in detail before asking for help.</li>
+  					<li>Stuents can see how many request are ahead of them ensuring that they are ready when a help staff is ready to see them.</li>
+  					<li>When a help staff is ready to meet a student, an email notification is sent to the student.</li>
+  					<li>Help staff can choose to "close" a question immediately without seeing them if question raised is trivial or student did not provide sufficient information.</li>
+  					<li>The number of students enrolled in a module is recorded and displayed which can provide information about how many students utilizes office hours.</li>
+  				</ul>
+  			</div>
+		</div><hr style="margin-top: 2rem;" class="seperator">
+	</div>
+
+	<div id="adminLoginForm" class="modal fade">
+		    <div class="modal-dialog">
+		        <div class="modal-content">
+		            <div class="modal-header">
+		            	<h4 class="primary-header2 modal-title">Login as an admin</h4>
+		                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only"></span></button>
+		            </div>
+		            <div id="modalBody" class="modal-body">
+		            	<form id="officeHourForm" action="{% url 'digitalclerk_app:login_process_admin' %}" method="POST">
+							{% csrf_token %}
+							<div class="form-group">
+						    	<label>Username:</label>
+						    	 <input type="text" class="form-control" name="username" placeholder="Enter username" required>       
+						    </div>
+							<div class="form-group">
+						    	<label>Password:</label>
+						    	 <input type="password" class="form-control" name="password" placeholder="Enter password" required>
+						    </div>
+					    	<input style="color: white; width: 32%;" id="adminLoginBtn" class="btn btn-primary" type="submit" value="Login" />
+						</form>
+		            </div>
+		        </div>
+		    </div>
+		</div>
 {% endblock %}

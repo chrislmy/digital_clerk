@@ -17,6 +17,12 @@ class AutoLoginRedicrect(MiddlewareMixin):
             if request.path == reverse('digitalclerk_app:login_process'):
                 request.session['token_code'] = settings.SESSION_TOKEN_LOGGING_IN
                 return HttpResponseRedirect('login_process')
+            if request.path == reverse('digitalclerk_app:admin_index'):
+                return;
+            if request.path == reverse('digitalclerk_app:login_process_admin'):
+                return;
+            if request.path == reverse('digitalclerk_app:process_logout_admin'):
+                return;
             if not request.path == reverse('digitalclerk_app:login_process'):
                 request.session['token_code'] = settings.SESSION_TOKEN_LOGGING_IN
                 return HttpResponseRedirect('login_process')
@@ -27,8 +33,15 @@ class AutoLoginRedicrect(MiddlewareMixin):
                 return
             if request.path == reverse('digitalclerk_app:oauth_callback'):
                 return
+            if request.path == reverse('digitalclerk_app:login_process'):
+                return;
+            if request.path == reverse('digitalclerk_app:admin_index'):
+                return;
+            if request.path == reverse('digitalclerk_app:login_process_admin'):
+                return;
+            if request.path == reverse('digitalclerk_app:process_logout_admin'):
+                return;
             if not request.path == reverse('digitalclerk_app:login_process'):
-                print('OH DEAR')
                 request.session['token_code'] = settings.SESSION_TOKEN_LOGGING_IN
                 return HttpResponseRedirect(reverse('digitalclerk_app:login_process'))
         return

@@ -4,10 +4,15 @@ from django.conf import settings
 from django.core import serializers
 from django.core.mail import send_mail
 from django.utils import timezone
+from django.contrib import auth
+from django.contrib.auth.models import User
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+
 
 from .forms import AdminUploadFileForm, AddOfficeHourForm, AddRequestForm, FeedbackForm
 from .helper_classes import MockUserProfile, MockModules
-from .models import OfficeHours, Request, Interaction, Feedback
+from .models import OfficeHours, Request, Interaction, Feedback, HelpStaff, UserProfile
 from .utils import *
 from .endpoints import *
 
@@ -22,6 +27,10 @@ def render_login_home(request):
 
 def process_logout(request):
 	del request.session['token_code']
+	return HttpResponseRedirect('login')
+
+def process_logout_admin(request):
+	logout(request)
 	return HttpResponseRedirect('login_home')
 
 def process_login(request):
@@ -31,6 +40,20 @@ def process_login(request):
 	auth_url += "?client_id=" + settings.UCLAPI_CLIENT_ID
 	auth_url += "&state=" + state
 	return redirect(auth_url)
+
+def process_login_admin(request):
+	username = request.POST.get('username')
+	password = request.POST.get('password')
+
+	if username is None or password is None:
+		return HttpResponseRedirect('login_home')
+	else:
+		user = auth.authenticate(username=username, password=password)
+		if user is not None:
+			auth.login(request, user)
+			return HttpResponseRedirect('admin_index')
+		else:
+			return HttpResponseRedirect('login_home')
 
 def oauth_callback(request):
 	try:
@@ -79,7 +102,7 @@ def allowed(request):
 	except KeyError as e:
 		print(e)
 		return HttpResponseRedirect('login_home')
-	return HttpResponseRedirect('dashboard_test')
+	return HttpResponseRedirect('dashboard')
 
 
 def denied(request):
@@ -87,64 +110,83 @@ def denied(request):
 	print('denied!')
 	return HttpResponseRedirect('login_home')
 
-# Admin dashboard page (Unintegrated yet)
+# Admin dashboard page
 def admin_index(request):
-	if request.method == 'POST':
-		form = AdminUploadFileForm(request.POST, request.FILES)
-		if form.is_valid():
-			inputFile = request.FILES['file']
-			data = parse_input_file(inputFile)
-			return render(request, 'digitalclerk_app/uploaded.html', data)
+	if request.user.is_authenticated:
+		table_entries = get_help_staff()
+		if request.method == 'POST':
+			form = AdminUploadFileForm(request.POST, request.FILES)
+			if form.is_valid():
+				inputFile = request.FILES['file']
+				excel_data = parse_input_file(inputFile)
+				uploaded_msg = "Excel file successfully uploaded!"
+				table_entries = get_help_staff()
+				data = {
+					'form': form,
+					'uploaded_msg': uploaded_msg,
+					'excel_data': excel_data,
+					'table_entries':table_entries
+				}
+				return render(request, 'digitalclerk_app/admin-upload.html', data)
+		else:
+			form = AdminUploadFileForm()
+
+		data = {
+			'form': form,
+			'uploaded msg': None,
+			'excel_data': None,
+			'table_entries': table_entries
+		}
+		return render(request, 'digitalclerk_app/admin-upload.html', data)
 	else:
-		form = AdminUploadFileForm()
-	return render(request, 'digitalclerk_app/admin-upload.html', {'form': form})
-	
-def dashboard_test(request):
+		return HttpResponseRedirect('login_home')
+
+# Dashboard home page
+def dashboard(request):
 	auth_token = request.session['token_code']
 	user_data = get_user_details(auth_token)
+	user_upi = user_data['upi']
+	try:
+		help_staff = HelpStaff.objects.get(upi=user_upi)
+		user = UserProfile.objects.get(upi=user_upi)
+		user.status = 'Lecturer'
+		user.save()
+	except HelpStaff.DoesNotExist:
+		user = UserProfile.objects.get(upi=user_upi)
+		user.status = 'Student'
+		user.save()
 	modules_arr = getPersonalModules(auth_token)
 	print(modules_arr)
 	data = {
 		'user_data': user_data,
 		'modules': modules_arr,
 	}
-	return render(request, 'digitalclerk_app/dashboard_test.html', data)
-
-# Dashboard home page
-def dashboard(request):
-	mock_module = MockModules()
-	modules_arr = mock_module.listModules
-	data = {
-		'modules': modules_arr
-	}
 	return render(request, 'digitalclerk_app/dashboard.html', data)
+
+# Profile page
+def profile_page(request):
+	auth_token = request.session['token_code']
+	user_data = get_user_details(auth_token)
+	modules_arr = getPersonalModules(auth_token)
+	num_modules = len(modules_arr)
+	print(num_modules)
+	data = {
+		'user_data': user_data,
+		'modules': modules_arr,
+		'num_modules': num_modules
+	}
+	return render(request, 'digitalclerk_app/profile.html', data)
 
 # Module detail page with CALENDARS and OFFICE HOURS
 def module_details(request, module_code):
 	auth_token = request.session['token_code']
 	user_profile = get_user_details(auth_token)
-	print('-------------- User Details for module page ---------------')
-	print(user_profile)
 	user_upi = int(user_profile['id'])
 	user_status = user_profile['status']
+	module_name = get_module_name(module_code)
 	user_enrolled = user_is_enrolled(user_upi, module_code)
-
-	# ****** TESTING CODE ********
-	# user_profile = MockUserProfile()
-	# user_upi = 0
-	# user_status = 'none'
-	# if(settings.MODULE_DETAIL_DASHBOARD_PROFILE == 'LECTURER_PROFILE'):
-	# 	user_upi = user_profile.lecturerProfile()['upi']
-	# 	user_status = user_profile.lecturerProfile()['status']
-	# elif(settings.MODULE_DETAIL_DASHBOARD_PROFILE == 'ASSISTANT_PROFILE'):
-	# 	user_upi = user_profile.assistantProfile()['upi']
-	# 	user_status = user_profile.assistantProfile()['status']
-	# elif(settings.MODULE_DETAIL_DASHBOARD_PROFILE == 'STUDENT_PROFILE_1'):
-	# 	user_upi = user_profile.studentProfile1()['upi']
-	# 	user_status = user_profile.studentProfile1()['status']
-	# elif(settings.MODULE_DETAIL_DASHBOARD_PROFILE == 'STUDENT_PROFILE_2'):
-	# 	user_upi = user_profile.studentProfile2()['upi']
-	# 	user_status = user_profile.studentProfile2()['status']
+	num_office_hours = get_module_num_active_office_hours(module_code)
+	num_students_enrolled = get_num_students_in_module(module_code)
 
 	form = AddOfficeHourForm()
 	office_hours = []
@@ -167,6 +209,9 @@ def module_details(request, module_code):
 		'user_status': user_status,
 		'user_is_enrolled': user_enrolled,
 		'module_code': module_code,
+		'module_name': module_name,
+		'num_office_hours': num_office_hours,
+		'num_students_enrolled': num_students_enrolled,
 		'form': form,
 		'lecturers': lecturer_list,
 		'office_hours': office_hours_json
@@ -180,10 +225,16 @@ def add_office_hour(request):
 	end_time = request.POST.get('end_time')
 	location = request.POST.get('location')
 	date = request.POST.get('current-date')
+	recurring_times = request.POST.get('recurring_times')
 	user_upi = request.POST.get('user-upi')
 	module_code = request.POST.get('module-code')
-	office_hour = OfficeHours(custom_profile_fk=user_upi, start_time=start_time, end_time=end_time, start_date=date, location=location, title=title, module_code=module_code)
-	office_hour.save()
+	start_date = datetime.datetime.strptime(date, "%Y-%m-%d")
+	for x in range(0,int(recurring_times)):
+		date_str = start_date.strftime("%Y-%m-%d")
+		office_hour = OfficeHours(custom_profile_fk=user_upi, start_time=start_time, end_time=end_time, start_date=date_str, location=location, title=title, module_code=module_code)
+		office_hour.save()
+		start_date = start_date + datetime.timedelta(days=7)
+		
 	return HttpResponseRedirect('dashboard/module_details/'+module_code)
 
 def edit_office_hour(request):
@@ -217,14 +268,7 @@ def office_hour_dashboard_student(request):
 
 	print('-------------- User Details for STUDENT_DASHBOARD page ---------------')
 	print(user_profile)
-
-	# ******* TEST CODE ********
-	# user_profile = MockUserProfile()
-	# user_upi = 0;
-	# if(settings.OFFICE_HOUR_DASHBOARD_STUDENT_PROFILE == 'STUDENT_PROFILE_1'):
-	# 	user_upi = user_profile.studentProfile1()['upi']
-	# elif(settings.OFFICE_HOUR_DASHBOARD_STUDENT_PROFILE == 'STUDENT_PROFILE_2'):
-	# 	user_upi = user_profile.studentProfile2()['upi']
+	
 
 	office_hour_id = int(request.GET.get('office-hour-id'))
 	office_hour = OfficeHours.objects.get(pk=office_hour_id)
@@ -313,17 +357,6 @@ def office_hour_dashboard(request):
 	user_upi = user_profile['id']
 	user_status = user_profile['status']
 
-	# ******** TESTING CODE ********
-	# user_profile = MockUserProfile()
-	# user_upi = 0
-	# user_status = 'none'
-	# if(settings.OFFICE_HOUR_DASHBOARD_STAFF_PROFILE == 'LECTURER_PROFILE'):
-	# 	user_upi = user_profile.lecturerProfile()['upi']
-	# 	user_status = user_profile.lecturerProfile()['status']
-	# elif(settings.OFFICE_HOUR_DASHBOARD_STAFF_PROFILE == 'ASSISTANT_PROFILE'):
-	# 	user_upi = user_profile.assistantProfile()['upi']
-	# 	user_status = user_profile.assistantProfile()['status']
-
 	office_hour_id = int(request.GET.get('office-hour-id'))
 	office_hour = OfficeHours.objects.get(pk=office_hour_id)
 	lecturer_id = int(request.GET.get('lecturer'))
@@ -398,12 +431,6 @@ def open_interaction(request, office_hour_id, lecturer_id, help_request_id, stat
 	user_fullname = get_user_full_name(help_request.request_user)
 	lecturer_name = get_user_full_name(lecturer_id)
 	user_email = get_user_email(help_request.request_user)
-
-	# ****** TEST CODE *******
-	# user_profile = MockUserProfile()
-	# lecturer_name = user_profile.getNameFromId(int(lecturer_id))
-	# user_name = user_profile.getNameFromId(help_request.request_user)
-	# user_email = user_profile.getEmailFromId(help_request.request_user)
 
 	subject = "Digital Clerk - Interaction Opened!"
 	email_message = 'Hello ' + user_fullname + ',\n\n' 
