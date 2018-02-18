@@ -47,7 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'digitalclerk_app.middleware.AutoLoginRedicrect',
+    'digitalclerk_app.middleware.AutoLoginRedicrect',
 ]
 
 ROOT_URLCONF = 'digitalclerk.urls'
@@ -100,7 +100,7 @@ UCLAPI_CLIENT_SECRET = "d35f152647087eee2d36885cef33ce3597f2fd6faacbbb7db48dcfab
 
 # Config for user profiles
 MODULE_DETAIL_DASHBOARD_PROFILE = 'LECTURER_PROFILE' # Sets the profile for the dashboard page of each module
-OFFICE_HOUR_DASHBOARD_STUDENT_PROFILE = 'STUDENT_PROFILE_1' # Sets the student user profile that raises a request
+OFFICE_HOUR_DASHBOARD_STUDENT_PROFILE = 'STUDENT_PROFILE_2' # Sets the student user profile that raises a request
 OFFICE_HOUR_DASHBOARD_STAFF_PROFILE = 'LECTURER_PROFILE' # Sets the lecturer who is in charge of dealing with request in an office hour
 
 # Password validation

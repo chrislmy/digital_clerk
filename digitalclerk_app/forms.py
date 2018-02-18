@@ -1,9 +1,17 @@
 from django import forms
 
 class AdminUploadFileForm(forms.Form):
-    file = forms.FileField(label= "Choose excel to upload")
+	file = forms.FileField()
 
 class AddOfficeHourForm(forms.Form):
+	def __init__(self, *args, **kwargs):
+		super(AddOfficeHourForm, self).__init__(*args, **kwargs)
+		choices = []
+		for x in range(1,31):
+			field_str = str(x) + ' weeks'
+			choices.append((x,field_str))
+		self.fields['recurring_times'].choices = choices
+
 	TIMES = (('09:00', '09:00'),
 		('09:30', '09:30'),
 		('10:00', '10:00'),
@@ -23,9 +31,11 @@ class AddOfficeHourForm(forms.Form):
 		('17:00','17:00'),
 		('17:30','17:30'),
 		('18:00','18:00'))
+
 	start_time = forms.ChoiceField(choices=TIMES)
 	end_time = forms.ChoiceField(choices=TIMES)
 	location = forms.CharField()
+	recurring_times = forms.ChoiceField(choices=())
 	office_hour_title = forms.CharField(initial="")
 
 class AddRequestForm(forms.Form):

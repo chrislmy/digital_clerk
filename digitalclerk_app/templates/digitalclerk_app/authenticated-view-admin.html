@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+	{% include "digitalclerk_app/includes/admin-header.html" %}
+	<div class="container">
+		{% block main %}{% endblock%}
+	</div>
+	{% block optional_js %}{% endblock %}
+{% endblock%}
