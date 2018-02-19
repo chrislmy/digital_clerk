@@ -101,26 +101,20 @@ echo Detected requirements.txt.  You can skip Python specific steps with a .skip
 pushd "%DEPLOYMENT_TARGET%"
 
 :: 3. Create virtual environment
-IF NOT EXIST "%DEPLOYMENT_TARGET%\env\azure.env.%PYTHON_RUNTIME%.txt" (
-  IF EXIST "%DEPLOYMENT_TARGET%\env" (
-    echo Deleting incompatible virtual environment.
-    rmdir /q /s "%DEPLOYMENT_TARGET%\env"
-    IF !ERRORLEVEL! NEQ 0 goto error
-  )
+IF NOT EXIST "D:\home\site\tools\python36*" (
 
-  echo Creating %PYTHON_RUNTIME% virtual environment.
-  D:\home\python361x64\python.exe -m pip install virtualenv
-  D:\home\python361x64\python.exe -m virtualenv env
+  echo Creating Python 3.6.1 x64 virtual environment...
+  nuget.exe install -Source https://www.siteextensions.net/api/v2/ -OutputDirectory D:\home\site\tools python361x64
+  mv /d/home/site/tools/python3*/content/python*/* /d/home/site/tools/
   IF !ERRORLEVEL! NEQ 0 goto error
-
-  copy /y NUL "%DEPLOYMENT_TARGET%\env\azure.env.%PYTHON_RUNTIME%.txt" >NUL
+  
 ) ELSE (
   echo Found compatible virtual environment.
 )
 
 :: 4. Install packages
 echo Pip install requirements.
-env\Scripts\python.exe -m pip install --upgrade -r D:\home\site\wwwroot\requirements.txt
+D:\home\site\tools\python.exe -m pip install -r "%DEPLOYMENT_TARGET%\requirements.txt"
 IF !ERRORLEVEL! NEQ 0 goto error
 
 REM Add additional package installation here
