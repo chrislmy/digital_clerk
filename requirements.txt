@@ -1,6 +1,4 @@
---find-links wheelhouse
 Django==1.10.5
-psycopg2==2.7.4
 requests==2.18.4
 selenium==3.0.1
 websocket-client==0.37.0
