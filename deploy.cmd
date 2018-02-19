@@ -97,7 +97,6 @@ IF EXIST "%DEPLOYMENT_TARGET%\.skipPythonDeployment" goto postPython
 echo Detected requirements.txt.  You can skip Python specific steps with a .skipPythonDeployment file.
 
 :: 2. Select Python version
-call :SelectPythonVersion
 
 pushd "%DEPLOYMENT_TARGET%"
 
