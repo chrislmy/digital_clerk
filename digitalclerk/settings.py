@@ -77,11 +77,12 @@ WSGI_APPLICATION = 'digitalclerk.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'digitalclerk',
-        'USER': 'postgres',
-        'PASSWORD': 'sejarahsux',
-        'HOST': 'localhost',
+        'NAME': 'postgresqldatabase52486',
+        'USER': 'postgresqldbuser@digital-clerk-postgresqldbserver',
+        'PASSWORD': 'Hunter23',
+        'HOST': 'digital-clerk-postgresqldbserver.postgres.database.azure.com',
         'PORT': '5432',
+        'OPTIONS': {'sslmode': 'require'},
     }
 }
 
