@@ -97,6 +97,7 @@ IF EXIST "%DEPLOYMENT_TARGET%\.skipPythonDeployment" goto postPython
 echo Detected requirements.txt.  You can skip Python specific steps with a .skipPythonDeployment file.
 
 :: 2. Select Python version
+call :SelectPythonVersion
 
 pushd "%DEPLOYMENT_TARGET%"
 
@@ -109,7 +110,8 @@ IF NOT EXIST "%DEPLOYMENT_TARGET%\env\azure.env.%PYTHON_RUNTIME%.txt" (
   )
 
   echo Creating %PYTHON_RUNTIME% virtual environment.
-  %PYTHON_EXE% -m %PYTHON_ENV_MODULE% env
+  D:\home\python361x64\python.exe -m pip install virtualenv
+  D:\home\python361x64\python.exe -m virtualenv env
   IF !ERRORLEVEL! NEQ 0 goto error
 
   copy /y NUL "%DEPLOYMENT_TARGET%\env\azure.env.%PYTHON_RUNTIME%.txt" >NUL
@@ -119,7 +121,7 @@ IF NOT EXIST "%DEPLOYMENT_TARGET%\env\azure.env.%PYTHON_RUNTIME%.txt" (
 
 :: 4. Install packages
 echo Pip install requirements.
-env\Scripts\python.exe -m pip install --upgrade -r requirements.txt
+env\Scripts\python.exe -m pip install --upgrade -r D:\home\site\wwwroot\requirements.txt
 IF !ERRORLEVEL! NEQ 0 goto error
 
 REM Add additional package installation here
