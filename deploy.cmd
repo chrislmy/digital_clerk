@@ -92,6 +92,7 @@ IF /I "%IN_PLACE_DEPLOYMENT%" NEQ "1" (
 )
 
 IF NOT EXIST "%DEPLOYMENT_TARGET%\requirements.txt" goto postPython
+IF EXIST "%DEPLOYMENT_TARGET%\.skipPythonDeployment" goto postPython
 
 echo Detected requirements.txt.  You can skip Python specific steps with a .skipPythonDeployment file.
 
