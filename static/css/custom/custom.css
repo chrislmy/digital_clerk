@@ -1,0 +1,133 @@
+/* Common styles */
+.custom-container {
+	max-width: 128rem;
+}
+
+.primary-header1 {
+	font-size: 2.1em;
+	font-family: 'Source Sans Pro', sans-serif;
+	color: #4286f4;
+}
+
+.primary-header2 {
+	font-size: 1.7em;
+	font-family: 'Source Sans Pro', sans-serif;
+	color: #226be1;
+}
+
+.primary-header3 {
+	font-size: 1.3em;
+	font-family: 'Source Sans Pro', sans-serif;
+	color: #0b6a89;
+}
+
+.font-size-lg {
+	font-size: 1.2em;
+	font-family: 'Source Sans Pro', sans-serif;
+}
+
+.font-size-md {
+	font-size: 1.0em;
+	font-family: 'Source Sans Pro', sans-serif;
+}
+
+.seperator {
+	margin-top: 0.2rem;
+	margin-bottom: 0.5rem;
+}
+
+.warning-box {
+	padding: 0.8rem;
+	border: 1px solid red;
+	border-radius: 3px;
+	color: red;
+	margin-top: 1rem;
+}
+
+.navigation-box {
+	padding: 0.3rem;
+	border: 1.5px solid #cac7c7;
+	border-radius: 5px;
+}
+
+.link-text {
+	color: #007bff;
+}
+
+/* Header */
+.main-header {
+	margin-bottom: 1rem;
+}
+
+.brand-font{
+	font-family: 'Open Sans', sans-serif;
+}
+
+.navbar-font{
+	font-family: 'Roboto', sans-serif;
+}
+
+/* Footer */
+.footer{
+	background-color: #f8f9fa !important;
+	padding: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+/* Login Home Page */
+.home-info{
+	text-align: center;
+}
+
+.home-icon{
+	color: #184ea6;
+}
+
+.features-section{
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+}
+
+.vertical-align-wrapper{
+	display: flex;
+	height: 100%;
+	width: 100%;
+	align-items: center;
+}
+
+.vertical-align{
+	width: 100%;
+}
+
+/* Module details page */
+#officeHourCalendar {
+	width: 100%;
+}
+
+#officeHourCalendar h2{
+	font-size: 1.8em;
+	font-family: 'Source Sans Pro', sans-serif;
+	color: #4286f4;
+}
+
+#officeHourCalendar .fc-prev-button, 
+#officeHourCalendar .fc-prev-button,{
+	font-size: 0.5em;
+}
+
+/* Office Hour Dashboard page for lecturers and students*/
+.card-header-addressed {
+	background-color: #aecff2;
+}
+
+.card-header-open {
+	background-color: #b1ec9a;
+}
+
+.card-header-pending {
+	background-color: #f5c759;
+}
+
+.card-collapse:hover {
+	cursor: pointer;
+}
