@@ -11,7 +11,7 @@
         <!-- CSS  -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.6.2/fullcalendar.css">
-        <link rel="stylesheet" type="text/css" href="{% static '/css/datatables/jquery.dataTables.min.css' %}">
+        <link rel="stylesheet" type="text/css" href="https://chrislmy.github.io/digital-clerk-static/dataTables.min.css">
         <link rel="stylesheet" type="text/css" href="https://chrislmy.github.io/digital-clerk-static/custom.css">
 
         <!-- Fonts -->
@@ -26,7 +26,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.6.2/fullcalendar.js"></script>
-        <script src="{% static 'js/datatables/jquery.dataTables.min.js' %}"></script>
+        <script src="https://chrislmy.github.io/digital-clerk-static/dataTables.min.js"></script>
     </head>
     
     <body>
@@ -35,7 +35,15 @@
 
     <footer class="footer">
         <div class="container">
-            <p>Powered by bootstrap, django and jquery</p>
+            <div>
+                <p class="font-size-lg">
+                    <span style="float: left;">Powered by Bootstrap, Django and Jquery.</span>
+                    <span style="float: right;"><i class="fa fa-github" aria-hidden="true">    
+                    </i> <a href="https://github.com/chrislmy/digital_clerk">Link to Github.</a></span>
+                </p>
+            </div>
+            <div style="clear: both"></div>
+            <div><p class="font-size-lg">Hosted by Microsoft Azure.</p></div>
         </div>
     </footer>
 </html>

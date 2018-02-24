@@ -207,7 +207,6 @@
 		            url: "{% url 'digitalclerk_app:refresh_request_form' %}?user-upi={{user_upi}}&office-hour-id={{office_hour_id}}&lecturer={{lecturer_id}}"  
 		        })
 		        .done(function(response) {
-		        	console.log(response)
 		        	$('#requestFormSection').html(response);
 		        	$('input').addClass("form-control");
 					$('textarea').addClass("form-control");
