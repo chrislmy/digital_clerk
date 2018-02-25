@@ -25,4 +25,20 @@
 			</div>
 		</div>
 	</div>
+	{% if user_data.status != 'Student' %}
+		<div class="card openRequest" style="margin-top: 1rem; width: 100%">
+			<div class="card-header card-header-pending">
+				<strong>Interaction Statistics</strong>
+			</div>
+			<div id="interactionReport">
+				<div class="card-body" >
+					<p class="font-size-md"><strong>Total Interactions: </strong>{{interaction_report.total_interactions}}</p>
+					<p class="font-size-md"><strong>Resolved Interactions: </strong>{{interaction_report.resolved_interactions}}</p>
+					<p class="font-size-md"><strong>Abandoned Interactions: </strong>{{interaction_report.abandoned_interactions}}</p>
+					<p class="font-size-md"><strong>Total Interaction Time: </strong>{{interaction_report.total_time_minutes}} minutes {{interaction_report.total_time_seconds}} seconds</p>
+					<p class="font-size-md"><strong>Average Interaction Time: </strong>{{interaction_report.total_time_minutes_avg}} minutes {{interaction_report.total_time_seconds_avg}} seconds</p>
+				</div>
+			</div>
+		</div>
+	{% endif %}
 {% endblock %}

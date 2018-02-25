@@ -156,7 +156,6 @@ def dashboard(request):
 		user.status = 'Student'
 		user.save()
 	modules_arr = getPersonalModules(auth_token)
-	print(modules_arr)
 	data = {
 		'user_data': user_data,
 		'modules': modules_arr,
@@ -169,11 +168,35 @@ def profile_page(request):
 	user_data = get_user_details(auth_token)
 	modules_arr = getPersonalModules(auth_token)
 	num_modules = len(modules_arr)
-	print(num_modules)
+	interactions = None
+	interaction_report = None;
+	if(user_data['status'] != 'Student'):
+		interactions = Interaction.objects.filter(lecturer=user_data['id'],status=1)
+		resolved_interactions = len(interactions)
+		interactions = Interaction.objects.filter(lecturer=user_data['id'],status=0)
+		abandoned_interactions = len(interactions)
+		interactions = Interaction.objects.filter(lecturer=user_data['id'])
+		total_time = 0
+		total_interactions = len(interactions)
+		for interaction in interactions:
+			total_time += interaction.duration_seconds
+		total_time_avg = int(total_time / total_interactions)
+		total_minutes, total_seconds = divmod(total_time, 60)
+		total_minutes_avg, total_seconds_avg = divmod(total_time_avg, 60)
+		interaction_report = {
+			'total_interactions': total_interactions,
+			'resolved_interactions': resolved_interactions,
+			'abandoned_interactions': abandoned_interactions,
+			'total_time_minutes': total_minutes,
+			'total_time_seconds': total_seconds,
+			'total_time_minutes_avg': total_minutes_avg,
+			'total_time_seconds_avg': total_seconds_avg,
+		}
 	data = {
 		'user_data': user_data,
 		'modules': modules_arr,
-		'num_modules': num_modules
+		'num_modules': num_modules,
+		'interaction_report': interaction_report
 	}
 	return render(request, 'digitalclerk_app/profile.html', data)
 

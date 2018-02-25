@@ -80,7 +80,6 @@ def store_user(token_code):
 	try:
 		user_profile = UserProfile.objects.get(upi=user_upi)
 	except UserProfile.DoesNotExist:
-		print(user_data_json['email'])
 		user_profile = UserProfile(
 			upi=user_data_json['upi'],
 			username=user_data_json['cn'],
@@ -90,7 +89,6 @@ def store_user(token_code):
 		)
 		user_profile.save()
 		enrolled_modules = getPersonalModules(token_code)
-		print('user_id = ' + str(user_profile.id))
 		store_modules(enrolled_modules, user_profile)
 
 # Creates enrolment for users who are logged in for the first time, used in above method.

@@ -124,6 +124,20 @@ def format_interactions(interaction_query_set):
 		formatted_interactions.append(formatted_interaction)
 	return formatted_interactions
 
+def format_profile_interactions(interaction_query_set):
+	formatted_interactions = []
+	interaction_status_list = ['Pending', 'Resolved', 'Abandoned']
+	for interaction in interaction_query_set:
+		request = Request.objects.get(pk=interaction.request_id)
+		formatted_interaction = {
+			'request': request,
+			'owner': get_user_full_name(request.request_user),
+			'interaction': interaction,
+			'status': interaction_status_list[interaction.status]
+		}
+		formatted_interactions.append(formatted_interaction)
+	return formatted_interactions
+
 def get_time_difference_seconds(start_time, end_time):
 	start_time_str = start_time.strftime("%Y-%m-%d %H:%M:%S")
 	end_time_str = end_time.strftime("%Y-%m-%d %H:%M:%S")
