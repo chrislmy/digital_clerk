@@ -72,6 +72,18 @@ def getPersonalModules(token_code):
 	unique_module_list = {v['module_code']:v for v in module_list}.values()
 	return unique_module_list
 
+def getStudentModules(user_id):
+	modules = []
+	student_modules = Enrolment.objects.filter(user_id=user_id)
+	if (len(student_modules) > 0):
+		for staff in student_modules:
+			module_dict = {
+				'module_code': staff.module_code,
+				'module_name': staff.module_name
+			}
+			modules.append(module_dict)
+	return modules
+
 def getStaffModules(user_upi):
 	modules = []
 	staff_modules = HelpStaff.objects.filter(upi=user_upi)

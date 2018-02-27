@@ -161,7 +161,7 @@ def dashboard(request):
 		user.status = 'Student'
 		user.save()
 	if (user.status == 'Student'):		
-		modules_arr = getPersonalModules(auth_token)
+		modules_arr = getStudentModules(user_data['id'])
 	else:
 		modules_arr = getStaffModules(user_upi)
 	data = {
