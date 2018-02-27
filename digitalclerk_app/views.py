@@ -188,7 +188,10 @@ def profile_page(request):
 		total_interactions = len(interactions)
 		for interaction in interactions:
 			total_time += interaction.duration_seconds
-		total_time_avg = int(total_time / total_interactions)
+		try:
+			total_time_avg = int(total_time / total_interactions)
+		except ZeroDivisionError:
+			total_time_avg = 0
 		total_minutes, total_seconds = divmod(total_time, 60)
 		total_minutes_avg, total_seconds_avg = divmod(total_time_avg, 60)
 		interaction_report = {
