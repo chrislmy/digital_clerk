@@ -18,7 +18,7 @@
   			<div class="col-12 col-md-8">
   				<ul>
   					<li>The file uploaded must be an excel file (.xls and .xlsx are supported).</li>
-  					<li>Please format the header in the follow sequence: First Name, Last Name, Status, Department and finally upi.</li>
+  					<li>Please format the header in the follow sequence: First Name, Last Name, Status, Department, upi, Module Code and finally Module Name.</li>
   					<li>Once uploaded the table below should be updated to reflect the data in the excel file.</li>
   					<li>Users whos upi is present in the file uploaded will be recognized as a help staff member by Digital Clerk.</li>
   				</ul>
@@ -45,6 +45,8 @@
 		    	<th>{{ excel_data.status }}</th>
 		    	<th>{{ excel_data.department }}</th>
 		    	<th>{{ excel_data.upi }}</th>
+		    	<th>{{ excel_data.module_code }}</th>
+		    	<th>{{ excel_data.module_name }}</th>
 		  	</tr>
 	  	</thead>
 	  	<tbody>
@@ -55,6 +57,8 @@
 					<td>{{ entry.status }}</td>
 					<td>{{ entry.department }}</td>
 					<td>{{ entry.upi }}</td>
+					<td>{{ entry.module_code }}</td>
+					<td>{{ entry.module_name }}</td>
 				</tr>
 			{% endfor %}
 		</tbody>

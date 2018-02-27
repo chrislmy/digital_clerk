@@ -7,8 +7,19 @@
 	{% if user_is_enrolled %}
 		<h2 class="primary-header1" style="margin-top: 1rem;">This is {{ module_code }} : {{ module_name }}</h2>
 		<p class="font-size-md">
-			<span style="margin-right: 1rem"><i class="fa fa-users" aria-hidden="true"></i> Number of users enrolled: {{num_students_enrolled}}</span>|
+			<span style="margin-right: 1rem"><i class="fa fa-users" aria-hidden="true"></i> Number of students enrolled: {{num_students_enrolled}}</span>|
 			<span style="margin-left: 1rem"><i class="fa fa-calendar" aria-hidden="true"></i> Number of active office hours: {{num_office_hours}}</span>
+		</p>
+		<p class="font-size-md">
+			<i class="fa fa-users" style="color: #4286f4" aria-hidden="true"></i> 
+			Teaching Staff: 
+			{% if module_staff|length == 0 %}
+				No staff enrolled in this module yet.
+			{% else %}
+				{% for staff in module_staff %}
+					{{ staff.first_name }} {{ staff.last_name }} |  
+				{% endfor %}
+			{% endif %}
 		</p>
 		<!-- Form to filter lecturer/assistant names -->
 		<form id="officeHourFilterForm" action="{% url 'digitalclerk_app:module_details' module_code %}" method="POST">

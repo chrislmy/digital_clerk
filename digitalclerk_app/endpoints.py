@@ -3,7 +3,7 @@ import json
 import os
 
 from django.conf import settings
-from .models import OfficeHours, Request, Interaction, Feedback, UserProfile, Enrolment
+from .models import OfficeHours, Request, Interaction, Feedback, UserProfile, Enrolment, HelpStaff
 
 def get_user_details(token_code):
 	url = settings.UCLAPI_URL + "/oauth/user/data"
@@ -42,6 +42,13 @@ def user_is_enrolled(user_id, module_code):
 	else:
 		return True
 
+def staff_is_enrolled(user_upi, module_code):
+	user_enrolment = HelpStaff.objects.filter(upi=user_upi, module_code=module_code)
+	if len(user_enrolment) == 0:
+		return False
+	else:
+		return True
+
 def getPersonalModules(token_code):
 	url = settings.UCLAPI_URL + "/timetable/personal"
 	params = {
@@ -65,6 +72,19 @@ def getPersonalModules(token_code):
 	unique_module_list = {v['module_code']:v for v in module_list}.values()
 	return unique_module_list
 
+def getStaffModules(user_upi):
+	modules = []
+	staff_modules = HelpStaff.objects.filter(upi=user_upi)
+	if (len(staff_modules) > 0):
+		for staff in staff_modules:
+			module_dict = {
+				'module_code': staff.module_code,
+				'module_name': staff.module_name
+			}
+			modules.append(module_dict)
+	return modules
+
+
 # Stores a user if they are logged in for the first time
 def store_user(token_code):
 	url = settings.UCLAPI_URL + "/oauth/user/data"
@@ -74,8 +94,6 @@ def store_user(token_code):
 	}
 	user_data = requests.get(url, params=params)
 	user_data_json = user_data.json()
-	print("-------User data from /user call------")
-	print(user_data_json)
 	user_upi = user_data_json['upi']
 	try:
 		user_profile = UserProfile.objects.get(upi=user_upi)
@@ -88,8 +106,11 @@ def store_user(token_code):
 			full_name=user_data_json['full_name']
 		)
 		user_profile.save()
-		enrolled_modules = getPersonalModules(token_code)
-		store_modules(enrolled_modules, user_profile)
+		try:	
+			enrolled_modules = getPersonalModules(token_code)
+			store_modules(enrolled_modules, user_profile)
+		except Exception as e:
+			return
 
 # Creates enrolment for users who are logged in for the first time, used in above method.
 def store_modules(module_list, user_profile):

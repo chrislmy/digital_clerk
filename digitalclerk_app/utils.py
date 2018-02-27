@@ -43,9 +43,24 @@ def check_office_hour_is_over(office_hour):
 		return 1
 	return 0
 
-def get_module_name(module_code):
-	module = Enrolment.objects.filter(module_code=module_code)[0] # First element is sufficient
+def get_module_name(module_code, user_status):
+	module = None
+	if (user_status == 'Student'):
+		module = Enrolment.objects.filter(module_code=module_code)[0] # First element is sufficient
+	else:
+		module = HelpStaff.objects.filter(module_code=module_code)[0] # First element is sufficient
 	return module.module_name
+
+def get_module_staff(module_code):
+	staff = []
+	module_staff_arr = HelpStaff.objects.filter(module_code=module_code)
+	for module_staff in module_staff_arr:
+		staff_name = {
+			'first_name': module_staff.first_name,
+			'last_name': module_staff.last_name
+		}
+		staff.append(staff_name)
+	return staff
 
 def get_lecturers_for_module(module_code):
 	lecturers_dict_array = []
@@ -124,20 +139,6 @@ def format_interactions(interaction_query_set):
 		formatted_interactions.append(formatted_interaction)
 	return formatted_interactions
 
-def format_profile_interactions(interaction_query_set):
-	formatted_interactions = []
-	interaction_status_list = ['Pending', 'Resolved', 'Abandoned']
-	for interaction in interaction_query_set:
-		request = Request.objects.get(pk=interaction.request_id)
-		formatted_interaction = {
-			'request': request,
-			'owner': get_user_full_name(request.request_user),
-			'interaction': interaction,
-			'status': interaction_status_list[interaction.status]
-		}
-		formatted_interactions.append(formatted_interaction)
-	return formatted_interactions
-
 def get_time_difference_seconds(start_time, end_time):
 	start_time_str = start_time.strftime("%Y-%m-%d %H:%M:%S")
 	end_time_str = end_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -157,6 +158,8 @@ def get_help_staff():
 			'status': help_staff.status,
 			'department': help_staff.department,
 			'upi': help_staff.upi,
+			'module_code': help_staff.module_code,
+			'module_name': help_staff.module_name
 		}
 		entries.append(entry)
 	return entries
@@ -171,6 +174,8 @@ def parse_input_file(inputFile):
 	status = headerRow[2].value
 	department = headerRow[3].value
 	upi = headerRow[4].value
+	module_code = headerRow[5].value
+	module_name = headerRow[6].value
 	entries = []
 	print(first_name + " | " + last_name + " | " + status + " | " + upi )
 	print("----------------------------------")
@@ -181,7 +186,9 @@ def parse_input_file(inputFile):
 			last_name=excelSheet.cell(row+1,1).value,
 			status=excelSheet.cell(row+1,2).value,
 			department=excelSheet.cell(row+1,3).value,
-			upi=excelSheet.cell(row+1,4).value	
+			upi=excelSheet.cell(row+1,4).value,
+			module_code=excelSheet.cell(row+1,5).value,
+			module_name=excelSheet.cell(row+1,6).value
 		)
 		entry = {
 			'first_name': excelSheet.cell(row+1,0).value,
@@ -189,6 +196,8 @@ def parse_input_file(inputFile):
 			'status': excelSheet.cell(row+1,2).value,
 			'department': excelSheet.cell(row+1,3).value,
 			'upi': excelSheet.cell(row+1,4).value,
+			'module_code': excelSheet.cell(row+1,5).value,
+			'module_name': excelSheet.cell(row+1,6).value,
 		}
 		entries.append(entry)
 		help_staff.save()
@@ -198,6 +207,8 @@ def parse_input_file(inputFile):
 		'status': status,
 		'department': department,
 		'upi': upi,
+		'module_code': module_code,
+		'module_name': module_name,
 		'entries': entries
 	}
 	return excel_data

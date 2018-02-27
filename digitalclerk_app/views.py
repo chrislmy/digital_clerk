@@ -100,7 +100,6 @@ def allowed(request):
 		request.session["token_code"] = token_code
 		store_user(token_code)
 	except KeyError as e:
-		print(e)
 		return HttpResponseRedirect('login_home')
 	return HttpResponseRedirect('dashboard')
 
@@ -146,8 +145,14 @@ def dashboard(request):
 	auth_token = request.session['token_code']
 	user_data = get_user_details(auth_token)
 	user_upi = user_data['upi']
+	user = None
+	modules_arr = []
 	try:
 		help_staff = HelpStaff.objects.get(upi=user_upi)
+		user = UserProfile.objects.get(upi=user_upi)
+		user.status = 'Lecturer'
+		user.save()
+	except HelpStaff.MultipleObjectsReturned:
 		user = UserProfile.objects.get(upi=user_upi)
 		user.status = 'Lecturer'
 		user.save()
@@ -155,7 +160,10 @@ def dashboard(request):
 		user = UserProfile.objects.get(upi=user_upi)
 		user.status = 'Student'
 		user.save()
-	modules_arr = getPersonalModules(auth_token)
+	if (user.status == 'Student'):		
+		modules_arr = getPersonalModules(auth_token)
+	else:
+		modules_arr = getStaffModules(user_upi)
 	data = {
 		'user_data': user_data,
 		'modules': modules_arr,
@@ -166,7 +174,7 @@ def dashboard(request):
 def profile_page(request):
 	auth_token = request.session['token_code']
 	user_data = get_user_details(auth_token)
-	modules_arr = getPersonalModules(auth_token)
+	modules_arr = []
 	num_modules = len(modules_arr)
 	interactions = None
 	interaction_report = None;
@@ -192,6 +200,9 @@ def profile_page(request):
 			'total_time_minutes_avg': total_minutes_avg,
 			'total_time_seconds_avg': total_seconds_avg,
 		}
+		modules_arr = getStaffModules(user_data['upi'])
+	else:
+		modules_arr = getPersonalModules(auth_token)
 	data = {
 		'user_data': user_data,
 		'modules': modules_arr,
@@ -206,8 +217,14 @@ def module_details(request, module_code):
 	user_profile = get_user_details(auth_token)
 	user_upi = int(user_profile['id'])
 	user_status = user_profile['status']
-	module_name = get_module_name(module_code)
-	user_enrolled = user_is_enrolled(user_upi, module_code)
+	module_name = None
+	user_enrolled = False
+	if (user_status == 'Student'):	
+		module_name = get_module_name(module_code, user_status)
+		user_enrolled = user_is_enrolled(user_upi, module_code)
+	else:
+		module_name = get_module_name(module_code, user_status)
+		user_enrolled = staff_is_enrolled(user_profile['upi'], module_code)
 	num_office_hours = get_module_num_active_office_hours(module_code)
 	num_students_enrolled = get_num_students_in_module(module_code)
 
@@ -215,6 +232,7 @@ def module_details(request, module_code):
 	office_hours = []
 	office_hours_json = None
 	lecturer_list = None
+	module_staff = get_module_staff(module_code)
 	if user_enrolled == True:
 		if request.POST.get('lecturer'):
 			lecturer_id = request.POST.get('lecturer')
@@ -233,6 +251,7 @@ def module_details(request, module_code):
 		'user_is_enrolled': user_enrolled,
 		'module_code': module_code,
 		'module_name': module_name,
+		'module_staff': module_staff,
 		'num_office_hours': num_office_hours,
 		'num_students_enrolled': num_students_enrolled,
 		'form': form,
@@ -288,11 +307,6 @@ def office_hour_dashboard_student(request):
 	auth_token = request.session['token_code']
 	user_profile = get_user_details(auth_token)
 	user_upi = user_profile['id']
-
-	print('-------------- User Details for STUDENT_DASHBOARD page ---------------')
-	print(user_profile)
-	
-
 	office_hour_id = int(request.GET.get('office-hour-id'))
 	office_hour = OfficeHours.objects.get(pk=office_hour_id)
 	lecturer_id = int(request.GET.get('lecturer'))

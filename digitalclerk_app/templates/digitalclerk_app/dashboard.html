@@ -24,11 +24,15 @@
 		</div>
 		<div id="userEnrolledModules">
 			<div class="card-body" >
-				{% for module in modules %}
-					<h3 class="primary-header2"><a href="{% url 'digitalclerk_app:module_details' module.module_code %}">{{ module.module_code }}</a></h3>
-					<p class="font-size-lg">{{ module.module_name }}</p>
-					<hr>
-				{% endfor %}
+				{% if modules|length  == 0 %}
+					<p class="font-size-lg">You are currently not enrolled in any modules. Please contact the administrator to enroll yourself in your respective modules.</p>
+				{% else %}
+					{% for module in modules %}
+						<h3 class="primary-header2"><a href="{% url 'digitalclerk_app:module_details' module.module_code %}">{{ module.module_code }}</a></h3>
+						<p class="font-size-lg">{{ module.module_name }}</p>
+						<hr>
+					{% endfor %}
+				{% endif %}
 			</div>
 		</div>
 	</div>

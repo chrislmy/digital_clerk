@@ -9,6 +9,8 @@ class HelpStaff(models.Model):
 	status = models.CharField(max_length=50)
 	department = models.CharField(max_length=100)
 	upi = models.CharField(max_length=20)
+	module_code = models.CharField(max_length=50)
+	module_name = models.CharField(max_length=300)
 
 class OfficeHours(models.Model):
 	custom_profile_fk = models.IntegerField()
