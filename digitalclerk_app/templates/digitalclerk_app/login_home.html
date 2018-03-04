@@ -29,9 +29,9 @@
 	<div style="text-align: center; margin-top:1.5rem; ">
 		<form style="display: inline; margin-right: 0.5rem;" action="{% url 'digitalclerk_app:login_process' %}" method="POST">
     		{% csrf_token %}
-    		<button class="btn btn-primary" type="submit">Log in with UCL</button>
+    		<button id="login-home-login-button" class="btn btn-primary" type="submit">Log in with UCL</button>
 		</form>
-		<button data-toggle="modal" data-target="#adminLoginForm" style="margin-left: 0.5rem;" class="btn btn-success" type="submit">Log in as a super admin</button>
+		<button id="admin-login-button" data-toggle="modal" data-target="#adminLoginForm" style="margin-left: 0.5rem;" class="btn btn-success" type="submit">Log in as a super admin</button>
 	</div><hr style="margin-top: 2rem;" class="seperator">
 
 	<div class="features-section">
@@ -68,11 +68,11 @@
 							{% csrf_token %}
 							<div class="form-group">
 						    	<label>Username:</label>
-						    	 <input type="text" class="form-control" name="username" placeholder="Enter username" required>       
+						    	 <input id="admin-username-field" type="text" class="form-control" name="username" placeholder="Enter username" required>       
 						    </div>
 							<div class="form-group">
 						    	<label>Password:</label>
-						    	 <input type="password" class="form-control" name="password" placeholder="Enter password" required>
+						    	 <input id="admin-password-field" type="password" class="form-control" name="password" placeholder="Enter password" required>
 						    </div>
 					    	<input style="color: white; width: 32%;" id="adminLoginBtn" class="btn btn-primary" type="submit" value="Login" />
 						</form>
