@@ -57,27 +57,27 @@
 	</div>
 
 	<div id="adminLoginForm" class="modal fade">
-		    <div class="modal-dialog">
-		        <div class="modal-content">
-		            <div class="modal-header">
-		            	<h4 class="primary-header2 modal-title">Login as an admin</h4>
-		                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only"></span></button>
-		            </div>
-		            <div id="modalBody" class="modal-body">
-		            	<form id="officeHourForm" action="{% url 'digitalclerk_app:login_process_admin' %}" method="POST">
-							{% csrf_token %}
-							<div class="form-group">
-						    	<label>Username:</label>
-						    	 <input id="admin-username-field" type="text" class="form-control" name="username" placeholder="Enter username" required>       
-						    </div>
-							<div class="form-group">
-						    	<label>Password:</label>
-						    	 <input id="admin-password-field" type="password" class="form-control" name="password" placeholder="Enter password" required>
-						    </div>
-					    	<input style="color: white; width: 32%;" id="adminLoginBtn" class="btn btn-primary" type="submit" value="Login" />
-						</form>
-		            </div>
-		        </div>
-		    </div>
-		</div>
+	    <div class="modal-dialog">
+	        <div class="modal-content">
+	            <div class="modal-header">
+	            	<h4 class="primary-header2 modal-title">Login as an admin</h4>
+	                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only"></span></button>
+	            </div>
+	            <div id="modalBody" class="modal-body">
+	            	<form id="officeHourForm" action="{% url 'digitalclerk_app:login_process_admin' %}" method="POST">
+						{% csrf_token %}
+						<div class="form-group">
+					    	<label>Username:</label>
+					    	 <input id="admin-username-field" type="text" class="form-control" name="username" placeholder="Enter username" required>       
+					    </div>
+						<div class="form-group">
+					    	<label>Password:</label>
+					    	 <input id="admin-password-field" type="password" class="form-control" name="password" placeholder="Enter password" required>
+					    </div>
+				    	<input style="color: white; width: 32%;" id="adminLoginBtn" class="btn btn-primary" type="submit" value="Login" />
+					</form>
+	            </div>
+	        </div>
+	    </div>
+	</div>
 {% endblock %}
