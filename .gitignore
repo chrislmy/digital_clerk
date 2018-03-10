@@ -1,2 +1,6 @@
 *.pyo
 *.pyc
+chromedriver
+geckodriver.log
+reports
+chromedriver.exe
