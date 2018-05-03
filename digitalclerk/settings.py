@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'digitalclerk.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgresqldatabase52486',
+        'NAME': 'postgresqldatabase30421',
         'USER': 'postgresqldbuser@digital-clerk-postgresqldbserver',
         'PASSWORD': 'Hunter23',
         'HOST': 'digital-clerk-postgresqldbserver.postgres.database.azure.com',
