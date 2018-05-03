@@ -205,7 +205,10 @@ def profile_page(request):
 		}
 		modules_arr = getStaffModules(user_data['upi'])
 	else:
-		modules_arr = getPersonalModules(auth_token)
+		try:	
+			modules_arr = getPersonalModules(auth_token)
+		except Exception as e:
+			modules_arr = []
 	data = {
 		'user_data': user_data,
 		'modules': modules_arr,
